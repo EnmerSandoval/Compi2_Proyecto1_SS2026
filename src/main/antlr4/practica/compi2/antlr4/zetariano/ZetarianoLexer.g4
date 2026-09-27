@@ -1,0 +1,77 @@
+lexer grammar ZetarianoLexer;
+
+PUBLIC    : 'public';
+PRIVATE   : 'private';
+PROTECTED : 'protected';
+CLASS     : 'class';
+VOID      : 'void';
+NEW       : 'new';
+NULL      : 'null';
+THIS      : 'this';
+IF        : 'if';
+ELSE      : 'else';
+SWITCH    : 'switch';
+CASE      : 'case';
+DEFAULT   : 'default';
+FOR       : 'for';
+WHILE     : 'while';
+DO        : 'do';
+BREAK     : 'break';
+CONTINUE  : 'continue';
+RETURN    : 'return';
+PRINTLN   : 'println';
+PRINT     : 'print';
+READLN    : 'readln';
+TRUE      : 'true';
+FALSE     : 'false';
+
+INT     : 'int';
+DOUBLE  : 'double';
+CHAR    : 'char';
+BOOLEAN : 'boolean';
+STRING  : 'String';
+
+ADD_ASSIGN : '+=';
+SUB_ASSIGN : '-=';
+MUL_ASSIGN : '*=';
+DIV_ASSIGN : '/=';
+INC        : '++';
+DEC        : '--';
+EQ         : '==';
+NE         : '!=';
+LE         : '<=';
+GE         : '>=';
+LT         : '<';
+GT         : '>';
+AND        : '&&';
+OR         : '||';
+NOT        : '!';
+QUESTION   : '?';
+ASSIGN     : '=';
+PLUS       : '+';
+MINUS      : '-';
+MULT       : '*';
+DIV        : '/';
+MOD        : '%';
+LPAREN     : '(';
+RPAREN     : ')';
+LBRACKET   : '[';
+RBRACKET   : ']';
+LBRACE     : '{';
+RBRACE     : '}';
+COMMA      : ',';
+COLON      : ':';
+SEMICOLON  : ';';
+DOT        : '.';
+
+DECIMAL_LIT : [0-9]+ '.' [0-9]+;
+INT_LIT     : [0-9]+;
+CHAR_LIT    : '\'' (ESCAPE | ~['\\\r\n]) '\'';
+STRING_LIT  : '"' (ESCAPE | ~["\\\r\n])* '"';
+ID          : [a-zA-Z_] [a-zA-Z0-9_]*;
+
+LINE_COMMENT  : '//' ~[\r\n]* -> channel(HIDDEN);
+BLOCK_COMMENT : '/*' .*? '*/' -> channel(HIDDEN);
+WS            : [ \t\r\n]+ -> skip;
+
+fragment ESCAPE : '\\' [nrt'"\\];
