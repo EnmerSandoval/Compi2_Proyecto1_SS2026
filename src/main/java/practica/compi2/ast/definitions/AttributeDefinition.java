@@ -41,7 +41,10 @@ public class AttributeDefinition extends AstNode {
 
     public void registerIn(ClassSymbol owner, SemanticContext sc) {
         Type resolved = sc.resolveType(type);
-        symbol = new Symbol(name, resolved, SymbolKind.ATTRIBUTE, owner.getAttributes().size());
+        int offset = owner.getFirstAttributeOffset() + owner.getAttributes().size();
+        symbol = new Symbol(name, resolved, SymbolKind.ATTRIBUTE, offset);
+        symbol.setAccess(access);
+        symbol.setOwnerClass(owner);
         symbol.setScope(owner.getName());
         if (!owner.addAttribute(symbol)) {
             sc.error(position, name, "El atributo '" + name + "' ya fue declarado en la clase " + owner.getName());

@@ -10,6 +10,7 @@ import practica.compi2.ast.expressions.operations.ArithmeticOperation;
 import practica.compi2.c3d.IntermediateCodeUtils;
 import practica.compi2.c3d.access.MemoryAccess;
 import practica.compi2.c3d.cuartetas.Assignation3D;
+import practica.compi2.c3d.helpers.CopyHelper;
 import practica.compi2.c3d.helpers.InitializerHelper;
 import practica.compi2.c3d.helpers.MemoryHelper;
 import practica.compi2.semantic.AssignmentChecker;
@@ -73,6 +74,11 @@ public class Assignation extends Statement {
             return InitializerHelper.build(u, (InitializerList) value, target.getType(), new ArrayList<>());
         }
         MemoryAccess access = value.toIntermediateCode(u);
+        if (compound == null && target.getType().isStruct() && target.getType().getDimensions() == 0) {
+            MemoryAccess current = MemoryHelper.load(u, location);
+            CopyHelper.copyStruct(u, current, access, u.getStruct(target.getType().getName()));
+            return current;
+        }
         if (compound == null) {
             return access;
         }

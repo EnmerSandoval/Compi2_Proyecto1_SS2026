@@ -44,6 +44,7 @@ public class YProgramVisitor extends YParserBaseVisitor<AstNode> {
         TypeReference returnType = new TypeReference(Position.of(ctx), PrimitiveType.VOID);
         if (ctx.type() != null) {
             returnType = typeMapper.map(ctx.type());
+            returnType.setDimensions(ctx.LBRACKET().size());
         }
         List<Parameter> parameters = createParameters(ctx.parameters());
         Block body = statementVisitor.visitBlock(ctx.block());

@@ -9,6 +9,7 @@ import practica.compi2.ast.expressions.Expression;
 import practica.compi2.ast.expressions.FunctionCall;
 import practica.compi2.ast.expressions.InitializerList;
 import practica.compi2.ast.expressions.NewObject;
+import practica.compi2.ast.expressions.NullLiteral;
 import practica.compi2.ast.expressions.VariableAccess;
 import practica.compi2.visitors.LiteralFactory;
 
@@ -39,6 +40,11 @@ public class PigLatinAtomVisitor extends PigLatinParserBaseVisitor<Expression> {
     @Override
     public Expression visitIdAtom(PigLatinParser.IdAtomContext ctx) {
         return new VariableAccess(Position.of(ctx), ctx.ID().getText());
+    }
+
+    @Override
+    public Expression visitNullAtom(PigLatinParser.NullAtomContext ctx) {
+        return new NullLiteral(Position.of(ctx));
     }
 
     @Override

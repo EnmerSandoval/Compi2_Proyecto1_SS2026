@@ -3,10 +3,13 @@ package practica.compi2.ast.definitions;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 import practica.compi2.ast.AstNode;
 import practica.compi2.ast.AstPrinter;
 import practica.compi2.ast.Position;
 import practica.compi2.c3d.IntermediateCodeUtils;
+import practica.compi2.c3d.helpers.CallHelper;
+import practica.compi2.c3d.helpers.MemoryHelper;
 import practica.compi2.semantic.SemanticContext;
 import practica.compi2.semantic.symbols.ClassSymbol;
 import practica.compi2.semantic.symbols.Symbol;
@@ -19,6 +22,8 @@ public class ClassDefinition extends AstNode {
 
     private AccessModifier access;
     private String name;
+    @Setter
+    private String parentName;
     private List<AttributeDefinition> attributes;
     private List<ConstructorDefinition> constructors;
     private List<MethodDefinition> methods;
@@ -49,7 +54,7 @@ public class ClassDefinition extends AstNode {
         if (!name.equals(expectedName)) {
             sc.error(position, name, "La clase '" + name + "' debe estar en un archivo llamado " + name + ".z");
         }
-        symbol = new ClassSymbol(name);
+        symbol = new ClassSymbol(name, access);
         if (!sc.getGlobals().addClass(symbol)) {
             sc.error(position, name, "Ya existe una estructura o clase llamada '" + name + "'");
         }
@@ -57,8 +62,38 @@ public class ClassDefinition extends AstNode {
         sc.report(new Symbol(name, new Type(TypeKind.CLASS, name, 0), SymbolKind.CLASS, -1));
     }
 
+    public void linkParent(SemanticContext sc) {
+        if (parentName == null) {
+            return;
+        }
+        ClassSymbol parent = sc.getGlobals().getClass(parentName);
+        if (parent == null) {
+            sc.error(position, parentName, "La clase padre '" + parentName + "' no existe");
+            return;
+        }
+        if (parent.isSubclassOf(symbol)) {
+            sc.error(position, parentName, "Herencia cíclica: '" + parentName + "' ya hereda de '" + name + "'");
+            return;
+        }
+        symbol.setParent(parent);
+    }
+
+    public int depth() {
+        int depth = 0;
+        for (ClassSymbol current = symbol == null ? null : symbol.getParent(); current != null;
+                current = current.getParent()) {
+            depth++;
+        }
+        return depth;
+    }
+
     public void registerMembers(SemanticContext sc) {
         sc.setCurrentClass(symbol);
+        boolean parentNeedsArguments = symbol.getParent() != null && !symbol.getParent().hasNoArgConstructor();
+        if (constructors.isEmpty() && parentNeedsArguments) {
+            sc.error(position, name, "La clase " + symbol.getParent().getName() + " no tiene un constructor sin parámetros, "
+                    + name + " debe declarar un constructor que llame a super(...)");
+        }
         for (AttributeDefinition attribute : attributes) {
             attribute.registerIn(symbol, sc);
         }
@@ -87,6 +122,9 @@ public class ClassDefinition extends AstNode {
 
     public void toIntermediateCode(IntermediateCodeUtils u) {
         u.startFunction(symbol.getInitName(), 2);
+        if (symbol.getParent() != null) {
+            CallHelper.call(u, symbol.getParent().getInitName(), MemoryHelper.thisPointer(u), new ArrayList<>());
+        }
         for (AttributeDefinition attribute : attributes) {
             attribute.toIntermediateCode(u);
         }
@@ -103,6 +141,7 @@ public class ClassDefinition extends AstNode {
     public void print(AstPrinter printer) {
         printer.value("acceso", access);
         printer.value("nombre", name);
+        printer.value("padre", parentName);
         printer.children("atributos", attributes);
         printer.children("constructores", constructors);
         printer.children("metodos", methods);

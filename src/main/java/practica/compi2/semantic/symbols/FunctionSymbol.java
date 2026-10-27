@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import practica.compi2.ast.definitions.AccessModifier;
 import practica.compi2.semantic.types.Type;
 
 @Getter
@@ -15,6 +16,10 @@ public class FunctionSymbol {
     private List<Symbol> parameters;
     @Setter
     private int frameSize;
+    @Setter
+    private AccessModifier access = AccessModifier.PUBLIC;
+    @Setter
+    private ClassSymbol ownerClass;
 
     public FunctionSymbol(String name, Type returnType, String owner) {
         this.name = name;

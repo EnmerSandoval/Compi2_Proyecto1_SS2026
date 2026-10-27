@@ -7,6 +7,7 @@ FINIS_MAIOR : 'FINIS';
 ESTO        : 'esto';
 SERIES      : 'series';
 NOVUS       : 'novus';
+NULL        : 'null';
 SI          : 'si';
 ALITER      : 'aliter';
 FINIS       : 'finis';
@@ -22,6 +23,7 @@ NUMERUS   : 'numerus';
 DECIMALIS : 'decimalis';
 TEXTUM    : 'textum';
 LITTERA   : 'littera';
+BOOL      : 'bool';
 
 PRINT     : '>>';
 READ      : '<<';
@@ -55,7 +57,6 @@ DOT       : '.';
 DECIMAL_LIT : [0-9]+ '.' [0-9]+;
 INT_LIT     : [0-9]+;
 CHAR_LIT    : '\'' (ESCAPE | ~['\\\r\n]) '\'';
-// tambien acepta las comillas curvas que salen al copiar del enunciado
 STRING_LIT  : '"' (ESCAPE | ~["\\\r\n])* '"'
             | '“' ~[”\r\n]* '”'
             ;

@@ -27,6 +27,7 @@ public class GlobalTable {
         if (existsType(classSymbol.getName())) {
             return false;
         }
+        classSymbol.setId(classes.size() + 1);
         classes.put(classSymbol.getName(), classSymbol);
         return true;
     }
@@ -49,6 +50,12 @@ public class GlobalTable {
 
     public FunctionSymbol getFunction(String name) {
         return functions.get(name);
+    }
+
+    public boolean isSubclass(String child, String parent) {
+        ClassSymbol childClass = classes.get(child);
+        ClassSymbol parentClass = classes.get(parent);
+        return childClass != null && parentClass != null && childClass.isSubclassOf(parentClass);
     }
 
     private boolean existsType(String name) {

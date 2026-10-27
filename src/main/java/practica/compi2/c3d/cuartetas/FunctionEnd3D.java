@@ -1,7 +1,10 @@
 package practica.compi2.c3d.cuartetas;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import practica.compi2.riscv.RiscVBuilder;
 
+@Getter
 @AllArgsConstructor
 public class FunctionEnd3D extends Cuarteta {
 
@@ -11,9 +14,15 @@ public class FunctionEnd3D extends Cuarteta {
     @Override
     public void toCCode(StringBuilder sb) {
         if (main) {
-            sb.append("    return 0;\n}\n");
-        } else {
-            sb.append("    return;\n}\n\n");
+            sb.append("    return 0;\n");
+        }
+    }
+
+    // salir del programa
+    @Override
+    public void toRiscV(RiscVBuilder rb) {
+        if (main) {
+            rb.syscall(10);
         }
     }
 

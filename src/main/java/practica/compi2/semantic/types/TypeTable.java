@@ -23,8 +23,7 @@ public class TypeTable {
     }
 
     public void registerClass(ClassSymbol classSymbol) {
-        entries.put(classSymbol.getName(),
-                new TypeEntry(classSymbol.getName(), TypeKind.CLASS, classSymbol.getAttributes()));
+        entries.put(classSymbol.getName(), new TypeEntry(classSymbol));
     }
 
     public TypeEntry get(String name) {

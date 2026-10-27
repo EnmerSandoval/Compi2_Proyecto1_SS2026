@@ -10,6 +10,7 @@ import practica.compi2.ast.types.TypeReference;
 import practica.compi2.c3d.IntermediateCodeUtils;
 import practica.compi2.c3d.access.MemoryAccess;
 import practica.compi2.c3d.cuartetas.Assignation3D;
+import practica.compi2.c3d.helpers.CopyHelper;
 import practica.compi2.c3d.helpers.DefaultValueHelper;
 import practica.compi2.c3d.helpers.InitializerHelper;
 import practica.compi2.c3d.helpers.MemoryHelper;
@@ -91,10 +92,17 @@ public class Declaration extends Statement {
         if (value instanceof InitializerList) {
             return InitializerHelper.build(u, (InitializerList) value, symbol.getType(), sizes);
         }
+        if (value != null && isStructValue(symbol.getType())) {
+            return CopyHelper.cloneStruct(u, value.toIntermediateCode(u), u.getStruct(symbol.getType().getName()));
+        }
         if (value != null) {
             return value.toIntermediateCode(u);
         }
         return DefaultValueHelper.create(u, symbol.getType(), sizes);
+    }
+
+    private boolean isStructValue(Type type) {
+        return type.isStruct() && type.getDimensions() == 0;
     }
 
     @Override

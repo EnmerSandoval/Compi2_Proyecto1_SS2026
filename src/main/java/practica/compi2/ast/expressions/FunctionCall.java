@@ -19,6 +19,7 @@ public class FunctionCall extends Expression {
     private String name;
     private List<Expression> arguments;
     private FunctionSymbol function;
+    private MethodCall methodCall;
 
     public FunctionCall(Position position, String name, List<Expression> arguments) {
         super(position);
@@ -28,6 +29,11 @@ public class FunctionCall extends Expression {
 
     @Override
     public Type validate(SemanticContext sc) {
+        if (sc.getCurrentClass() != null && !sc.getCurrentClass().getMethodsNamed(name).isEmpty()) {
+            methodCall = new MethodCall(position, new ThisAccess(position), name, arguments);
+            type = methodCall.validate(sc);
+            return type;
+        }
         List<Type> argumentTypes = CallMatcher.validateArguments(arguments, sc);
         type = Type.ERROR;
         function = sc.getGlobals().getFunction(name);
@@ -46,6 +52,9 @@ public class FunctionCall extends Expression {
 
     @Override
     public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
+        if (methodCall != null) {
+            return methodCall.toIntermediateCode(u);
+        }
         List<MemoryAccess> values = new ArrayList<>();
         for (Expression argument : arguments) {
             values.add(argument.toIntermediateCode(u));

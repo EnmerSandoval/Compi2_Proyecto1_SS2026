@@ -41,7 +41,7 @@ public class CompatibilityPrinter {
         }
     }
 
-    private String cellText(CompatibilityTable table, String group, TypeKind left, TypeKind right) {
+    public String cellText(CompatibilityTable table, String group, TypeKind left, TypeKind right) {
         TypeKind resultKind = table.findInGroup(group, left, right);
         if (resultKind == null) {
             return "error";

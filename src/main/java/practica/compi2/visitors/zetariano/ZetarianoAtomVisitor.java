@@ -12,6 +12,7 @@ import practica.compi2.ast.expressions.NewArray;
 import practica.compi2.ast.expressions.NewObject;
 import practica.compi2.ast.expressions.NullLiteral;
 import practica.compi2.ast.expressions.ReadExpression;
+import practica.compi2.ast.expressions.SuperAccess;
 import practica.compi2.ast.expressions.ThisAccess;
 import practica.compi2.ast.expressions.VariableAccess;
 import practica.compi2.ast.types.TypeReference;
@@ -38,6 +39,11 @@ public class ZetarianoAtomVisitor extends ZetarianoParserBaseVisitor<Expression>
     }
 
     @Override
+    public Expression visitSuperAtom(ZetarianoParser.SuperAtomContext ctx) {
+        return new SuperAccess(Position.of(ctx));
+    }
+
+    @Override
     public Expression visitThisAtom(ZetarianoParser.ThisAtomContext ctx) {
         return new ThisAccess(Position.of(ctx));
     }
@@ -51,6 +57,9 @@ public class ZetarianoAtomVisitor extends ZetarianoParserBaseVisitor<Expression>
     public Expression visitCallAtom(ZetarianoParser.CallAtomContext ctx) {
         ThisAccess owner = new ThisAccess(Position.of(ctx));
         List<Expression> arguments = expressionVisitor.createArguments(ctx.arguments());
+        if (ctx.ID().getText().equals("read") && arguments.isEmpty()) {
+            return new ReadExpression(Position.of(ctx));
+        }
         return new MethodCall(Position.of(ctx), owner, ctx.ID().getText(), arguments);
     }
 

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 import practica.compi2.ast.Ast;
 import practica.compi2.ast.definitions.ImportDeclaration;
 import practica.compi2.ast.programs.PigLatinProgram;
@@ -97,6 +98,26 @@ public class ProgramLoader {
         ZetarianoProgram program = zetarianoParser.parse(fileName(file), code);
         if (program != null) {
             ast.addClass(program);
+            loadParentClass(program, file, ast);
+        }
+    }
+
+    private void loadParentClass(ZetarianoProgram program, Path file, Ast ast) {
+        if (program.getClassDefinition() == null || program.getClassDefinition().getParentName() == null) {
+            return;
+        }
+        String parentFile = program.getClassDefinition().getParentName() + ".z";
+        Path sibling = file.resolveSibling(parentFile).normalize();
+        if (Files.exists(sibling)) {
+            loadZetariano(sibling, ast);
+            return;
+        }
+        try (Stream<Path> files = Files.walk(projectFolder)) {
+            files.filter(path -> path.getFileName().toString().equals(parentFile))
+                    .findFirst()
+                    .ifPresent(path -> loadZetariano(path.normalize(), ast));
+        } catch (IOException e) {
+            em.addSemanticError(fileName(file), null, parentFile, "No se pudo buscar la clase padre");
         }
     }
 

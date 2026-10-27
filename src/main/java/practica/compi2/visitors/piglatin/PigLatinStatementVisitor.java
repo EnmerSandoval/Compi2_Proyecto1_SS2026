@@ -48,6 +48,13 @@ public class PigLatinStatementVisitor extends PigLatinParserBaseVisitor<Statemen
     }
 
     @Override
+    public Declaration visitTypedDeclaration(PigLatinParser.TypedDeclarationContext ctx) {
+        TypeReference type = typeMapper.map(ctx.type());
+        Expression value = expressionVisitor.visit(ctx.expression());
+        return new Declaration(Position.of(ctx), type, ctx.ID().getText(), new ArrayList<>(), value);
+    }
+
+    @Override
     public Declaration visitVariableDeclaration(PigLatinParser.VariableDeclarationContext ctx) {
         TypeReference type = null;
         if (ctx.type() != null) {

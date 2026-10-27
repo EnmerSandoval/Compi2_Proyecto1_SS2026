@@ -50,13 +50,13 @@ public class ZetarianoExpressionVisitor extends ZetarianoParserBaseVisitor<Expre
     public Expression visitMethodCallExpr(ZetarianoParser.MethodCallExprContext ctx) {
         Expression target = visit(ctx.expression());
         List<Expression> arguments = createArguments(ctx.arguments());
-        return new MethodCall(Position.of(ctx), target, ctx.ID().getText(), arguments);
+        return new MethodCall(Position.of(ctx.ID().getSymbol()), target, ctx.ID().getText(), arguments);
     }
 
     @Override
     public Expression visitFieldAccessExpr(ZetarianoParser.FieldAccessExprContext ctx) {
         Expression target = visit(ctx.expression());
-        return new FieldAccess(Position.of(ctx), target, ctx.ID().getText());
+        return new FieldAccess(Position.of(ctx.ID().getSymbol()), target, ctx.ID().getText());
     }
 
     @Override

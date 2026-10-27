@@ -5,6 +5,7 @@ import java.util.List;
 import practica.compi2.ast.expressions.Expression;
 import practica.compi2.ast.expressions.InitializerList;
 import practica.compi2.ast.expressions.Literal;
+import practica.compi2.ast.expressions.ReadExpression;
 import practica.compi2.semantic.symbols.StructSymbol;
 import practica.compi2.semantic.symbols.Symbol;
 import practica.compi2.semantic.types.Type;
@@ -27,6 +28,9 @@ public class AssignmentChecker {
             return;
         }
         Type valueType = value.validate(sc);
+        if (value instanceof ReadExpression read && read.convertTo(expected)) {
+            return;
+        }
         if (!sc.getRules().canAssign(expected, valueType)) {
             sc.error(value.getPosition(), "",
                     "Se esperaba un valor de tipo " + expected + " pero se encontró " + valueType);

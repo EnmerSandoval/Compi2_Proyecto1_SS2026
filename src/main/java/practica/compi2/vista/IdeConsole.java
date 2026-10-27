@@ -14,7 +14,11 @@ public class IdeConsole {
     }
 
     public void println(String text) {
-        area.append(text + "\n");
+        print(text + "\n");
+    }
+
+    public void print(String text) {
+        area.append(text);
         area.setCaretPosition(area.getDocument().getLength());
     }
 }

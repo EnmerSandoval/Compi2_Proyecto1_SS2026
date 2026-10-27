@@ -40,7 +40,7 @@ public class YExpressionVisitor extends YParserBaseVisitor<Expression> {
     @Override
     public Expression visitFieldAccessExpr(YParser.FieldAccessExprContext ctx) {
         Expression target = visit(ctx.expression());
-        return new FieldAccess(Position.of(ctx), target, ctx.ID().getText());
+        return new FieldAccess(Position.of(ctx.ID().getSymbol()), target, ctx.ID().getText());
     }
 
     @Override

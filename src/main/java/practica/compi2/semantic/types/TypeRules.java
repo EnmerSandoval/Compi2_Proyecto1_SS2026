@@ -1,8 +1,13 @@
 package practica.compi2.semantic.types;
 
+import lombok.Setter;
+import practica.compi2.semantic.symbols.GlobalTable;
+
 public class TypeRules {
 
     private final CompatibilityTable table;
+    @Setter
+    private GlobalTable classes;
 
     public TypeRules(CompatibilityTable table) {
         this.table = table;
@@ -60,7 +65,7 @@ public class TypeRules {
         if (left.isNull() || right.isNull()) {
             return canAssign(left, right) || canAssign(right, left);
         }
-        return left.sameAs(right);
+        return left.sameAs(right) || isSubclass(left, right) || isSubclass(right, left);
     }
 
     public boolean canAssign(Type target, Type value) {
@@ -73,7 +78,7 @@ public class TypeRules {
         if (bothPrimitive(target, value)) {
             return table.find("=", target.getKind(), value.getKind()) != null;
         }
-        return target.sameAs(value);
+        return target.sameAs(value) || isSubclass(value, target);
     }
 
     public Type commonType(Type first, Type second) {
@@ -84,6 +89,12 @@ public class TypeRules {
             return second;
         }
         return Type.ERROR;
+    }
+
+    private boolean isSubclass(Type child, Type parent) {
+        return classes != null && child.isClass() && parent.isClass()
+                && child.getDimensions() == 0 && parent.getDimensions() == 0
+                && classes.isSubclass(child.getName(), parent.getName());
     }
 
     private Type fromTable(String operator, Type left, Type right) {

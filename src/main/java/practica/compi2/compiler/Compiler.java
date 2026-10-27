@@ -9,6 +9,7 @@ import practica.compi2.errors.CompilationError;
 import practica.compi2.errors.ErrorManager;
 import practica.compi2.errors.ErrorType;
 import practica.compi2.parsers.ProgramLoader;
+import practica.compi2.riscv.RiscVGenerator;
 import practica.compi2.semantic.SemanticAnalyzer;
 
 public class Compiler {
@@ -46,5 +47,6 @@ public class Compiler {
         IntermediateCodeUtils u = new IntermediateCodeGenerator().generate(ast, analyzer.getTypeTable());
         compilation.setCuartetas(u.getCuartetas());
         compilation.setCode(new CCodeGenerator().generateCode(u));
+        compilation.setRiscVCode(new RiscVGenerator().generateCode(u));
     }
 }

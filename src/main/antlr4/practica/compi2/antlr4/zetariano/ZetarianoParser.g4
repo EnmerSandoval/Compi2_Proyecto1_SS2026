@@ -9,7 +9,7 @@ compilationUnit
     ;
 
 classDeclaration
-    : accessModifier? CLASS ID LBRACE classMember* RBRACE
+    : accessModifier? CLASS ID (EXTENDS ID)? LBRACE classMember* RBRACE
     ;
 
 classMember
@@ -33,7 +33,7 @@ constructorDeclaration
     ;
 
 methodDeclaration
-    : accessModifier? (type | VOID) ID LPAREN parameters? RPAREN block
+    : OVERRIDE? accessModifier? (type | VOID) ID LPAREN parameters? RPAREN block
     ;
 
 parameters
@@ -60,7 +60,6 @@ block
     : LBRACE statement* RBRACE
     ;
 
-// sentencias
 statement
     : block
     | simpleStatement SEMICOLON
@@ -72,6 +71,8 @@ simpleStatement
     : localDeclaration                               # declarationStatement
     | assignment                                     # assignmentStatement
     | (PRINTLN | PRINT) LPAREN expression? RPAREN     # printStatement
+    | SUPER LPAREN arguments? RPAREN                   # superCallStatement
+    | THIS LPAREN arguments? RPAREN                    # thisCallStatement
     | RETURN expression?                             # returnStatement
     | BREAK                                          # breakStatement
     | CONTINUE                                       # continueStatement
@@ -108,7 +109,6 @@ forUpdate
     | expression
     ;
 
-// expresiones
 expression
     : expression DOT ID LPAREN arguments? RPAREN                      # methodCallExpr
     | expression DOT ID                                               # fieldAccessExpr
@@ -130,6 +130,7 @@ atom
     : LPAREN expression RPAREN                                  # groupAtom
     | literal                                                   # literalAtom
     | THIS                                                      # thisAtom
+    | SUPER                                                     # superAtom
     | NULL                                                      # nullAtom
     | ID LPAREN arguments? RPAREN                               # callAtom
     | ID                                                        # idAtom

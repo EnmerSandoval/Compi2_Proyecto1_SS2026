@@ -31,6 +31,9 @@ public class VariableAccess extends Expression {
             type = Type.ERROR;
             return type;
         }
+        if (symbol.getKind() == SymbolKind.ATTRIBUTE) {
+            sc.checkAccess(position, id, symbol.getAccess(), symbol.getOwnerClass(), "El atributo '" + id + "'");
+        }
         type = symbol.getType();
         return type;
     }

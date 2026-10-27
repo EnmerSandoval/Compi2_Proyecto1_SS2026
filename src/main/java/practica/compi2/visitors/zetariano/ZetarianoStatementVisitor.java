@@ -15,6 +15,7 @@ import practica.compi2.ast.statements.ExpressionStmt;
 import practica.compi2.ast.statements.PrintStmt;
 import practica.compi2.ast.statements.ReturnStmt;
 import practica.compi2.ast.statements.Statement;
+import practica.compi2.ast.statements.ConstructorCall;
 import practica.compi2.ast.types.TypeReference;
 
 public class ZetarianoStatementVisitor extends ZetarianoParserBaseVisitor<Statement> {
@@ -88,6 +89,16 @@ public class ZetarianoStatementVisitor extends ZetarianoParserBaseVisitor<Statem
         }
         boolean newLine = ctx.PRINTLN() != null;
         return new PrintStmt(Position.of(ctx), values, newLine);
+    }
+
+    @Override
+    public ConstructorCall visitThisCallStatement(ZetarianoParser.ThisCallStatementContext ctx) {
+        return new ConstructorCall(Position.of(ctx), true, expressionVisitor.createArguments(ctx.arguments()));
+    }
+
+    @Override
+    public ConstructorCall visitSuperCallStatement(ZetarianoParser.SuperCallStatementContext ctx) {
+        return new ConstructorCall(Position.of(ctx), false, expressionVisitor.createArguments(ctx.arguments()));
     }
 
     @Override

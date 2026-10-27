@@ -22,6 +22,9 @@ public class PigLatinTypeMapper {
             case PigLatinParser.LITTERA -> {
                 return new TypeReference(position, PrimitiveType.CHAR);
             }
+            case PigLatinParser.BOOL -> {
+                return new TypeReference(position, PrimitiveType.BOOLEAN);
+            }
             default -> {
                 return new TypeReference(position, ctx.getText());
             }

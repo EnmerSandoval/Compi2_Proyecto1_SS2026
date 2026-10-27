@@ -10,6 +10,8 @@ public class ConsoleOptions {
     private boolean showCuartetas;
     private boolean showCode;
     private boolean showTypes;
+    private boolean showRiscV;
+    private boolean runRiscV;
 
     public ConsoleOptions() {
         this.path = "main.pig";
@@ -23,6 +25,8 @@ public class ConsoleOptions {
                 case "--cuartetas" -> options.showCuartetas = true;
                 case "--c3d" -> options.showCode = true;
                 case "--tipos" -> options.showTypes = true;
+                case "--riscv" -> options.showRiscV = true;
+                case "--ejecutar" -> options.runRiscV = true;
                 default -> options.path = arg;
             }
         }

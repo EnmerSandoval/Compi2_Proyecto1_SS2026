@@ -26,6 +26,7 @@ public class SyntaxErrorListener extends BaseErrorListener {
         String lexeme = "";
         if (recognizer instanceof Lexer) {
             type = ErrorType.LEXICO;
+            msg = msg.replaceAll("(\\s|\\\\[nrt])+'$", "'");
             lexeme = AntlrMessageTranslator.lexemeOf(msg);
         } else if (offendingSymbol instanceof Token) {
             lexeme = AntlrMessageTranslator.translate(((Token) offendingSymbol).getText());

@@ -76,7 +76,7 @@ public class TokenStyles {
 
     private boolean isWord(String literal) {
         char first = literal.charAt(1);
-        return Character.isLetter(first) || first == '%';
+        return Character.isLetter(first) || first == '%' || first == '@';
     }
 
     private Style createStyle(String name, Color color, boolean bold) {

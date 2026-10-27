@@ -8,6 +8,8 @@ import practica.compi2.ast.Position;
 import practica.compi2.c3d.IntermediateCodeUtils;
 import practica.compi2.c3d.access.MemoryAccess;
 import practica.compi2.c3d.helpers.CallHelper;
+import practica.compi2.c3d.helpers.DispatchHelper;
+import practica.compi2.c3d.helpers.NullCheckHelper;
 import practica.compi2.semantic.CallMatcher;
 import practica.compi2.semantic.SemanticContext;
 import practica.compi2.semantic.symbols.ClassSymbol;
@@ -21,6 +23,7 @@ public class MethodCall extends Expression {
     private String name;
     private List<Expression> arguments;
     private FunctionSymbol method;
+    private ClassSymbol ownerClass;
 
     public MethodCall(Position position, Expression target, String name, List<Expression> arguments) {
         super(position);
@@ -41,13 +44,15 @@ public class MethodCall extends Expression {
             sc.error(position, name, "Solo se pueden llamar métodos sobre objetos, no sobre " + targetType);
             return type;
         }
-        ClassSymbol owner = sc.getGlobals().getClass(targetType.getName());
-        method = CallMatcher.findOverload(owner.getMethodsNamed(name), argumentTypes, sc.getRules());
+        ownerClass = sc.getGlobals().getClass(targetType.getName());
+        method = CallMatcher.findOverload(ownerClass.getMethodsNamed(name), argumentTypes, sc.getRules());
         if (method == null) {
-            sc.error(position, name, "La clase " + owner.getName() + " no tiene un método '" + name
+            sc.error(position, name, "La clase " + ownerClass.getName() + " no tiene un método '" + name
                     + "' que reciba esos argumentos");
             return type;
         }
+        sc.checkAccess(position, name, method.getAccess(), method.getOwnerClass(),
+                "El método " + method.getSignature());
         type = method.getReturnType();
         return type;
     }
@@ -55,11 +60,13 @@ public class MethodCall extends Expression {
     @Override
     public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
         MemoryAccess object = target.toIntermediateCode(u);
+        NullCheckHelper.check(u, target, object, position);
         List<MemoryAccess> values = new ArrayList<>();
         for (Expression argument : arguments) {
             values.add(argument.toIntermediateCode(u));
         }
-        return CallHelper.call(u, method.getCName(), object, values);
+        String callee = target instanceof SuperAccess ? method.getCName() : DispatchHelper.target(u, ownerClass, method);
+        return CallHelper.call(u, callee, object, values);
     }
 
     @Override

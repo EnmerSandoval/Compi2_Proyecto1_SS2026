@@ -54,7 +54,17 @@ public class InitializerHelper {
         if (element instanceof InitializerList) {
             return build(u, (InitializerList) element, type, new ArrayList<>());
         }
-        return element.toIntermediateCode(u);
+        return copyOf(u, element.toIntermediateCode(u), type);
+    }
+
+    public static MemoryAccess copyOf(IntermediateCodeUtils u, MemoryAccess value, Type type) {
+        if (type.isArray()) {
+            return CopyHelper.cloneArray(u, value, type);
+        }
+        if (type.isStruct()) {
+            return CopyHelper.cloneStruct(u, value, u.getStruct(type.getName()));
+        }
+        return value;
     }
 
     private static List<MemoryAccess> shapeOf(InitializerList list, int dimensionCount) {

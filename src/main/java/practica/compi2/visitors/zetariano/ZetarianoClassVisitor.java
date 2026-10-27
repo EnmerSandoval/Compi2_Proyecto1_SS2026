@@ -39,7 +39,10 @@ public class ZetarianoClassVisitor extends ZetarianoParserBaseVisitor<AstNode> {
     @Override
     public ClassDefinition visitClassDeclaration(ZetarianoParser.ClassDeclarationContext ctx) {
         AccessModifier access = accessOf(ctx.accessModifier());
-        ClassDefinition classDefinition = new ClassDefinition(Position.of(ctx), access, ctx.ID().getText());
+        ClassDefinition classDefinition = new ClassDefinition(Position.of(ctx), access, ctx.ID(0).getText());
+        if (ctx.EXTENDS() != null) {
+            classDefinition.setParentName(ctx.ID(1).getText());
+        }
         for (ZetarianoParser.ClassMemberContext memberCtx : ctx.classMember()) {
             if (memberCtx.fieldDeclaration() != null) {
                 classDefinition.addAttribute(visitFieldDeclaration(memberCtx.fieldDeclaration()));
@@ -77,7 +80,10 @@ public class ZetarianoClassVisitor extends ZetarianoParserBaseVisitor<AstNode> {
         }
         List<Parameter> parameters = createParameters(ctx.parameters());
         Block body = statementVisitor.visitBlock(ctx.block());
-        return new MethodDefinition(Position.of(ctx), access, ctx.ID().getText(), parameters, returnType, body);
+        MethodDefinition method = new MethodDefinition(Position.of(ctx), access, ctx.ID().getText(), parameters,
+                returnType, body);
+        method.setOverride(ctx.OVERRIDE() != null);
+        return method;
     }
 
     @Override

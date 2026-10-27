@@ -6,9 +6,11 @@ import lombok.Getter;
 import practica.compi2.ast.AstPrinter;
 import practica.compi2.ast.Position;
 import practica.compi2.c3d.IntermediateCodeUtils;
+import practica.compi2.c3d.access.HeapAccess;
 import practica.compi2.c3d.access.Literal3D;
 import practica.compi2.c3d.access.MemoryAccess;
 import practica.compi2.c3d.access.TemporalAccess;
+import practica.compi2.c3d.cuartetas.Assignation3D;
 import practica.compi2.c3d.helpers.CallHelper;
 import practica.compi2.c3d.helpers.MemoryHelper;
 import practica.compi2.semantic.CallMatcher;
@@ -47,6 +49,10 @@ public class NewObject extends Expression {
             sc.error(position, className, "La clase " + className + " no tiene un constructor que reciba esos argumentos");
             return type;
         }
+        if (constructor != null) {
+            sc.checkAccess(position, className, constructor.getAccess(), classSymbol,
+                    "El constructor " + constructor.getSignature());
+        }
         type = new Type(TypeKind.CLASS, className, 0);
         return type;
     }
@@ -57,11 +63,15 @@ public class NewObject extends Expression {
         for (Expression argument : arguments) {
             values.add(argument.toIntermediateCode(u));
         }
-        int size = u.getTypeTable().sizeOf(className);
-        TemporalAccess object = MemoryHelper.allocate(u, new Literal3D(size));
+        TemporalAccess object = MemoryHelper.allocate(u, new Literal3D(classSymbol.getSize()));
+        u.getCuartetas().add(new Assignation3D(new HeapAccess(object), new Literal3D(classSymbol.getId())));
         CallHelper.call(u, classSymbol.getInitName(), object, new ArrayList<>());
-        if (constructor != null) {
-            CallHelper.call(u, constructor.getCName(), object, values);
+        FunctionSymbol called = constructor;
+        if (called == null) {
+            called = classSymbol.getImplicitConstructor();
+        }
+        if (called != null) {
+            CallHelper.call(u, called.getCName(), object, values);
         }
         return object;
     }

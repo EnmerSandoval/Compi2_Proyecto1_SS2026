@@ -14,6 +14,9 @@ public class IntermediateCodeGenerator {
         for (YProgram program : ast.getYPrograms()) {
             program.registerStructs(u);
         }
+        for (ZetarianoProgram program : ast.getClasses()) {
+            u.registerClass(program.getClassDefinition().getSymbol());
+        }
         NativeLibrary.generate(u);
         for (YProgram program : ast.getYPrograms()) {
             program.toIntermediateCode(u);
@@ -22,6 +25,7 @@ public class IntermediateCodeGenerator {
             program.toIntermediateCode(u);
         }
         ast.getMain().toIntermediateCode(u);
+        u.linkReturns();
         return u;
     }
 }

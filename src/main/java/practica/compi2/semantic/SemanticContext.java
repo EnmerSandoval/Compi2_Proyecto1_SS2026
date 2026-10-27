@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import practica.compi2.ast.definitions.AccessModifier;
 import practica.compi2.ast.Position;
 import practica.compi2.ast.expressions.Expression;
 import practica.compi2.ast.types.TypeReference;
@@ -51,6 +52,7 @@ public class SemanticContext {
     public void useFile(String fileName, TypeRules rules) {
         this.fileName = fileName;
         this.rules = rules;
+        rules.setClasses(globals);
     }
 
     public void error(Position position, String lexeme, String description) {
@@ -58,6 +60,20 @@ public class SemanticContext {
             lexeme = position.getLexeme();
         }
         em.addSemanticError(fileName, position, lexeme, description);
+    }
+
+    public boolean canAccess(AccessModifier access, ClassSymbol owner) {
+        return owner == null || access.allowsAccess(currentClass, owner);
+    }
+
+    public boolean checkAccess(Position position, String lexeme, AccessModifier access, ClassSymbol owner,
+            String member) {
+        if (canAccess(access, owner)) {
+            return true;
+        }
+        error(position, lexeme, member + " es " + access.describe() + " en la clase " + owner.getName()
+                + " y no se puede usar desde aquí");
+        return false;
     }
 
     public void enterFunction(FunctionSymbol function, Frame newFrame) {

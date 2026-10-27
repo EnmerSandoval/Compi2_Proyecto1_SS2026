@@ -59,8 +59,8 @@ LPAREN    : '(' {openBracket();};
 RPAREN    : ')' {closeBracket();};
 LBRACKET  : '[' {openBracket();};
 RBRACKET  : ']' {closeBracket();};
-LBRACE    : '{' {openBrace();};
-RBRACE    : '}' {closeBrace();};
+LBRACE    : '{' {openBracket();};
+RBRACE    : '}' {closeBracket();};
 COMMA     : ',';
 COLON     : ':';
 SEMICOLON : ';';
@@ -72,7 +72,6 @@ CHAR_LIT    : '\'' (ESCAPE | ~['\\\r\n]) '\'';
 STRING_LIT  : '"' (ESCAPE | ~["\\\r\n])* '"';
 ID          : [a-zA-Z_] [a-zA-Z0-9_]*;
 
-// la indentacion la maneja YLexerBase
 NEWLINE : ('\r'? '\n' | '\r') [ \t]* {onNewLine();};
 
 LINE_COMMENT  : '//' ~[\r\n]* -> channel(HIDDEN);

@@ -11,7 +11,6 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.Element;
 import practica.compi2.vista.IdeConsole;
 import practica.compi2.vista.editor.SyntaxHighlighter;
 
@@ -110,17 +109,6 @@ public class EditorController implements DocumentListener {
 
     public void close() {
         showCode(null, "");
-    }
-
-    public void goTo(int line, int column) {
-        Element root = editor.getDocument().getDefaultRootElement();
-        if (line < 1 || line > root.getElementCount()) {
-            return;
-        }
-        Element row = root.getElement(line - 1);
-        int offset = Math.min(row.getStartOffset() + Math.max(column - 1, 0), row.getEndOffset() - 1);
-        editor.requestFocusInWindow();
-        editor.setCaretPosition(offset);
     }
 
     public static String extensionOf(Path file) {

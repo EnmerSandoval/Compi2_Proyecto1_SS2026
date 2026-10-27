@@ -55,7 +55,7 @@ public class ReturnStmt extends Statement {
             MemoryAccess access = value.toIntermediateCode(u);
             u.getCuartetas().add(new Assignation3D(new StackAccess(PointerAccess.STACK), access));
         }
-        u.getCuartetas().add(new Return3D());
+        u.getCuartetas().add(new Return3D(u.getCurrentFunction().getEndLabel()));
     }
 
     @Override

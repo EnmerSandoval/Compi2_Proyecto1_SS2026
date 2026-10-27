@@ -19,6 +19,10 @@ public class Position {
         return new Position(start.getLine(), start.getCharPositionInLine() + 1, lexemeOf(ctx));
     }
 
+    public static Position of(Token token) {
+        return new Position(token.getLine(), token.getCharPositionInLine() + 1, token.getText());
+    }
+
     private static String lexemeOf(ParserRuleContext ctx) {
         Token start = ctx.getStart();
         Token stop = ctx.getStop();

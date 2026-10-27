@@ -13,7 +13,6 @@ public abstract class YLexerBase extends Lexer {
 
     private final LinkedList<Token> pendingTokens = new LinkedList<>();
     private final Stack<Integer> indents = new Stack<>();
-    private final Stack<Boolean> listBraces = new Stack<>();
     private int openBrackets = 0;
     private int lastTokenType = Token.INVALID_TYPE;
 
@@ -40,20 +39,6 @@ public abstract class YLexerBase extends Lexer {
     protected void closeBracket() {
         if (openBrackets > 0) {
             openBrackets--;
-        }
-    }
-
-    protected void openBrace() {
-        boolean isList = lastTokenType != YLexer.RPAREN;
-        listBraces.push(isList);
-        if (isList) {
-            openBracket();
-        }
-    }
-
-    protected void closeBrace() {
-        if (!listBraces.isEmpty() && listBraces.pop()) {
-            closeBracket();
         }
     }
 

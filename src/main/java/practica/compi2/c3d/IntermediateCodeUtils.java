@@ -7,9 +7,17 @@ import java.util.Map;
 import java.util.Stack;
 import lombok.Getter;
 import lombok.Setter;
+import practica.compi2.c3d.access.Literal3D;
+import practica.compi2.c3d.access.PointerAccess;
+import practica.compi2.c3d.access.StackAccess;
+import practica.compi2.c3d.access.TemporalAccess;
+import practica.compi2.c3d.cuartetas.Assignation3D;
 import practica.compi2.c3d.cuartetas.Cuarteta;
 import practica.compi2.c3d.cuartetas.FunctionEnd3D;
 import practica.compi2.c3d.cuartetas.FunctionStart3D;
+import practica.compi2.c3d.cuartetas.LabelDefinition3D;
+import practica.compi2.c3d.cuartetas.Operation3D;
+import practica.compi2.semantic.symbols.ClassSymbol;
 import practica.compi2.semantic.symbols.StructSymbol;
 import practica.compi2.semantic.types.TypeTable;
 
@@ -27,6 +35,9 @@ public class IntermediateCodeUtils {
     private String falseText;
     @Setter
     private TypeTable typeTable;
+    private List<ClassSymbol> classes;
+    private TemporalSaver temporalSaver;
+    private ReturnLinker returnLinker;
 
     public IntermediateCodeUtils() {
         this.cuartetas = new ArrayList<>();
@@ -36,6 +47,9 @@ public class IntermediateCodeUtils {
         this.structs = new HashMap<>();
         this.trueText = "verdadero";
         this.falseText = "falso";
+        this.classes = new ArrayList<>();
+        this.temporalSaver = new TemporalSaver(counter);
+        this.returnLinker = new ReturnLinker();
     }
 
     public void startFunction(String name, int size) {
@@ -47,9 +61,43 @@ public class IntermediateCodeUtils {
     }
 
     public void endFunction() {
-        currentFunction.setLastTemporal(counter.getTemporalCount());
-        cuartetas.add(new FunctionEnd3D(currentFunction.getName(), currentFunction.isMain()));
+        temporalSaver.saveAroundCalls(cuartetas, cuartetas.indexOf(currentFunction));
+        cuartetas.add(new LabelDefinition3D(currentFunction.getEndLabel()));
+        FunctionEnd3D end = new FunctionEnd3D(currentFunction.getName(), currentFunction.isMain());
+        if (!currentFunction.isMain()) {
+            returnLinker.addReturnAddress(end, loadReturnAddress());
+        }
+        cuartetas.add(end);
         currentFunction = null;
+    }
+
+    public void registerCall(String name, int returnLabel, CallSite site) {
+        returnLinker.addCall(name, returnLabel);
+        temporalSaver.addCall(site);
+    }
+
+    public List<Cuarteta> getMainFirst() {
+        int mainStart = 0;
+        while (mainStart < cuartetas.size()
+                && !(cuartetas.get(mainStart) instanceof FunctionStart3D start && start.isMain())) {
+            mainStart++;
+        }
+        int mainEnd = mainStart;
+        while (!(cuartetas.get(mainEnd) instanceof FunctionEnd3D)) {
+            mainEnd++;
+        }
+        List<Cuarteta> ordered = new ArrayList<>(cuartetas.subList(mainStart, mainEnd + 1));
+        ordered.addAll(cuartetas.subList(0, mainStart));
+        ordered.addAll(cuartetas.subList(mainEnd + 1, cuartetas.size()));
+        return ordered;
+    }
+
+    public void registerClass(ClassSymbol classSymbol) {
+        classes.add(classSymbol);
+    }
+
+    public void linkReturns() {
+        cuartetas = returnLinker.link(cuartetas);
     }
 
     public void enterLoop(int continueLabel, int breakLabel) {
@@ -92,8 +140,16 @@ public class IntermediateCodeUtils {
     }
 
     private void begin(String name, boolean main, int size) {
-        currentFunction = new FunctionStart3D(name, main, counter.getTemporalCount());
+        currentFunction = new FunctionStart3D(name, main, counter.getAndIncrementLabelCount());
         frameSize = size;
         cuartetas.add(currentFunction);
+    }
+
+    private TemporalAccess loadReturnAddress() {
+        TemporalAccess slot = new TemporalAccess(counter.getAndIncrementTemporalCount());
+        TemporalAccess address = new TemporalAccess(counter.getAndIncrementTemporalCount());
+        cuartetas.add(new Operation3D(slot, PointerAccess.STACK, new Literal3D(1), "-"));
+        cuartetas.add(new Assignation3D(address, new StackAccess(slot)));
+        return address;
     }
 }

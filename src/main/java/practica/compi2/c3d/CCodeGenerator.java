@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import practica.compi2.c3d.cuartetas.Cuarteta;
 import practica.compi2.c3d.cuartetas.FunctionEnd3D;
 import practica.compi2.c3d.cuartetas.FunctionStart3D;
@@ -23,19 +24,29 @@ public class CCodeGenerator {
                 int H = 1;
 
                 """);
-        for (Cuarteta cuarteta : u.getCuartetas()) {
-            if (cuarteta instanceof FunctionStart3D && !((FunctionStart3D) cuarteta).isMain()) {
-                sb.append("void ").append(((FunctionStart3D) cuarteta).getName()).append("();\n");
+        declareTemporals(sb, u.getCounter().getTemporalCount());
+        sb.append("\nint main() {\n");
+        appendCode(sb, u.getMainFirst());
+        sb.append("}\n");
+        return sb.toString();
+    }
+
+    private void declareTemporals(StringBuilder sb, int count) {
+        for (int i = 0; i < count; i++) {
+            sb.append(i % 10 == 0 ? "double t" : ", t").append(i);
+            if (i % 10 == 9 || i == count - 1) {
+                sb.append(";\n");
             }
         }
-        sb.append("\n");
-        for (Cuarteta cuarteta : u.getCuartetas()) {
+    }
+
+    private void appendCode(StringBuilder sb, List<Cuarteta> cuartetas) {
+        for (Cuarteta cuarteta : cuartetas) {
             if (isInstruction(cuarteta)) {
                 sb.append("    ");
             }
             cuarteta.toCCode(sb);
         }
-        return sb.toString();
     }
 
     public String generateFile(String code, Path folder) {

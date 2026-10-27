@@ -1,5 +1,6 @@
 package practica.compi2.semantic;
 
+import java.util.Comparator;
 import java.util.List;
 import practica.compi2.ast.Ast;
 import practica.compi2.ast.programs.YProgram;
@@ -18,6 +19,7 @@ public class SemanticAnalyzer {
 
     public void analyze(Ast ast) {
         registerTypes(ast);
+        linkClasses(ast);
         registerMembers(ast);
         validatePrograms(ast);
     }
@@ -29,6 +31,13 @@ public class SemanticAnalyzer {
         for (ZetarianoProgram program : ast.getClasses()) {
             program.registerTypes(sc);
         }
+    }
+
+    private void linkClasses(Ast ast) {
+        for (ZetarianoProgram program : ast.getClasses()) {
+            program.linkParent(sc);
+        }
+        ast.getClasses().sort(Comparator.comparingInt(program -> program.getClassDefinition().depth()));
     }
 
     private void registerMembers(Ast ast) {

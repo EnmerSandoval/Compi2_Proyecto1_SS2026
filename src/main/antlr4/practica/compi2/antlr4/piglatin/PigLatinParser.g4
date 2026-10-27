@@ -21,7 +21,8 @@ mainSection
     ;
 
 declaration
-    : ESTO ID COLON type? expression? SEMICOLON               # variableDeclaration
+    : ESTO ID COLON expression COLON type SEMICOLON           # typedDeclaration
+    | ESTO ID COLON type? expression? SEMICOLON               # variableDeclaration
     | SERIES ID dimensions COLON type expression? SEMICOLON    # arrayDeclaration
     ;
 
@@ -33,7 +34,6 @@ block
     : LBRACE statement* RBRACE
     ;
 
-// sentencias
 statement
     : declaration
     | simpleStatement
@@ -78,7 +78,6 @@ forUpdate
     | expression
     ;
 
-// expresiones
 expression
     : expression DOT ID LPAREN arguments? RPAREN      # methodCallExpr
     | expression DOT ID                               # fieldAccessExpr
@@ -100,6 +99,7 @@ atom
     | ID LPAREN arguments? RPAREN                        # callAtom
     | ID                                                 # idAtom
     | NOVUS ID LPAREN arguments? RPAREN                  # newObjectAtom
+    | NULL                                               # nullAtom
     | LBRACE (expression (COMMA expression)*)? RBRACE    # listAtom
     ;
 
@@ -121,5 +121,6 @@ type
     | DECIMALIS
     | TEXTUM
     | LITTERA
+    | BOOL
     | ID
     ;

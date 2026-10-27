@@ -20,6 +20,7 @@ public class CompilationResult {
     private TypeTable typeTable;
     private List<Cuarteta> cuartetas;
     private String code;
+    private String riscVCode;
 
     public CompilationResult() {
         this.errors = new ArrayList<>();

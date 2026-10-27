@@ -10,6 +10,10 @@ import practica.compi2.ast.programs.ZetarianoProgram;
 import practica.compi2.c3d.CCodeGenerator;
 import practica.compi2.compiler.CompilationResult;
 import practica.compi2.compiler.Compiler;
+import practica.compi2.riscv.RiscVGenerator;
+import practica.compi2.riscv.simulador.RiscVException;
+import practica.compi2.riscv.simulador.RiscVRunner;
+import practica.compi2.riscv.simulador.StreamIO;
 
 public class ConsoleRunner {
 
@@ -68,8 +72,30 @@ public class ConsoleRunner {
             System.out.println("================ CÓDIGO DE TRES DIRECCIONES ================");
             System.out.println(compilation.getCode());
         }
-        CCodeGenerator generator = new CCodeGenerator();
-        System.out.println(generator.generateFile(compilation.getCode(), Path.of(System.getProperty("user.dir"))));
+        if (options.isShowRiscV()) {
+            System.out.println("================ RISC-V ================");
+            System.out.println(compilation.getRiscVCode());
+        }
+        Path folder = Path.of(System.getProperty("user.dir"));
+        System.out.println(new CCodeGenerator().generateFile(compilation.getCode(), folder));
+        System.out.println(new RiscVGenerator().generateFile(compilation.getRiscVCode(), folder));
+        if (options.isRunRiscV()) {
+            runRiscV(compilation.getRiscVCode());
+        }
+    }
+
+    private void runRiscV(String code) {
+        System.out.println("================ EJECUCIÓN EN EL SIMULADOR RISC-V ================");
+        try {
+            long steps = RiscVRunner.run(code, new StreamIO(System.in, System.out));
+            System.out.flush();
+            System.out.println();
+            System.out.println("[Programa terminado, " + steps + " instrucciones ejecutadas]");
+        } catch (RiscVException e) {
+            System.out.flush();
+            System.out.println();
+            System.out.println("[Error en el simulador] " + e.getMessage());
+        }
     }
 
     private void printAst(Ast ast) {

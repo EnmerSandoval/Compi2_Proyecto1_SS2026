@@ -9,7 +9,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import practica.compi2.c3d.cuartetas.Cuarteta;
 import practica.compi2.compiler.CompilationResult;
-import practica.compi2.console.TypeReportPrinter;
 import practica.compi2.semantic.symbols.Symbol;
 
 public class ResultsDialog extends JDialog {
@@ -21,9 +20,10 @@ public class ResultsDialog extends JDialog {
         super(owner, "Reportes de compilación", false);
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Tabla de símbolos", symbolTable(compilation.getSymbols()));
-        tabs.addTab("Tabla de tipos", TableFactory.createTextPanel(new TypeReportPrinter().print(compilation.getTypeTable())));
+        tabs.addTab("Tabla de tipos", new TypeTablesPanel(compilation.getTypeTable()));
         tabs.addTab("Cuartetas", cuartetaTable(compilation.getCuartetas()));
         tabs.addTab("Código de tres direcciones", TableFactory.createTextPanel(compilation.getCode()));
+        tabs.addTab("RISC-V", TableFactory.createTextPanel(compilation.getRiscVCode()));
         add(tabs);
         setSize(1000, 600);
         setLocationRelativeTo(owner);

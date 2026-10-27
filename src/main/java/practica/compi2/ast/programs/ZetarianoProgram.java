@@ -24,6 +24,11 @@ public class ZetarianoProgram extends Program {
         classDefinition.registerName(sc, nameWithoutExtension());
     }
 
+    public void linkParent(SemanticContext sc) {
+        sc.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
+        classDefinition.linkParent(sc);
+    }
+
     public void registerMembers(SemanticContext sc) {
         sc.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
         classDefinition.registerMembers(sc);

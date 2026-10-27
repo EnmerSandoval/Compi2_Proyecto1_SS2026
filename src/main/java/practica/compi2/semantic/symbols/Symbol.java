@@ -2,6 +2,7 @@ package practica.compi2.semantic.symbols;
 
 import lombok.Getter;
 import lombok.Setter;
+import practica.compi2.ast.definitions.AccessModifier;
 import practica.compi2.semantic.types.Type;
 
 @Getter
@@ -14,6 +15,8 @@ public class Symbol {
     private int offset;
     private String scope;
     private String file;
+    private AccessModifier access = AccessModifier.PUBLIC;
+    private ClassSymbol ownerClass;
 
     public Symbol(String name, Type type, SymbolKind kind, int offset) {
         this.name = name;

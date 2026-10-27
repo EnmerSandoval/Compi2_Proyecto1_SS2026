@@ -25,7 +25,7 @@ fieldDefinition
     ;
 
 functionDefinition
-    : DEFINIR ID LPAREN parameters? RPAREN (ARROW type)? COLON block
+    : DEFINIR ID LPAREN parameters? RPAREN (ARROW (LBRACE RBRACE | (LBRACKET RBRACKET)+)? type)? COLON block
     ;
 
 parameters
@@ -42,7 +42,6 @@ block
     : NEWLINE INDENT statement+ DEDENT
     ;
 
-// sentencias
 statement
     : structDefinition
     | simpleStatement SEMICOLON? NEWLINE
@@ -92,7 +91,7 @@ elseClause
     ;
 
 switchStatement
-    : ELEGIR LPAREN expression RPAREN LBRACE NEWLINE INDENT caseClause* defaultClause? DEDENT RBRACE NEWLINE
+    : ELEGIR LPAREN expression RPAREN COLON? NEWLINE INDENT caseClause* defaultClause? DEDENT
     ;
 
 caseClause
@@ -125,7 +124,6 @@ doWhileStatement
     : HACER COLON block MIENTRAS LPAREN expression RPAREN SEMICOLON? NEWLINE
     ;
 
-// expresiones
 expression
     : expression DOT ID                               # fieldAccessExpr
     | expression LBRACKET expression RBRACKET         # arrayAccessExpr
