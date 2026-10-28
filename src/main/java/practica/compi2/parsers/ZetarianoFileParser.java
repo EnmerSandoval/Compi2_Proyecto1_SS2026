@@ -12,14 +12,14 @@ import practica.compi2.visitors.zetariano.ZetarianoClassVisitor;
 
 public class ZetarianoFileParser {
 
-    private final ErrorManager em;
+    private final ErrorManager errorManager;
 
-    public ZetarianoFileParser(ErrorManager em) {
-        this.em = em;
+    public ZetarianoFileParser(ErrorManager errorManager) {
+        this.errorManager = errorManager;
     }
 
     public ZetarianoProgram parse(String fileName, String code) {
-        SyntaxErrorListener errorListener = new SyntaxErrorListener(em, fileName);
+        SyntaxErrorListener errorListener = new SyntaxErrorListener(errorManager, fileName);
 
         ZetarianoLexer lexer = new ZetarianoLexer(CharStreams.fromString(code));
         lexer.removeErrorListeners();

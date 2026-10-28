@@ -54,28 +54,28 @@ public class Simulator {
     }
 
     // ejecutar instruccion
-    private void execute(Instruction in) {
-        int r0 = in.register(0);
-        int r1 = in.register(1);
-        int r2 = in.register(2);
-        int r3 = in.register(3);
-        long imm = in.getImmediate();
+    private void execute(Instruction instruction) {
+        int r0 = instruction.register(0);
+        int r1 = instruction.register(1);
+        int r2 = instruction.register(2);
+        int r3 = instruction.register(3);
+        long immediate = instruction.getImmediate();
         int next = pc + 1;
-        switch (in.getOp()) {
+        switch (instruction.getOp()) {
             case ADD -> x[r0] = x[r1] + x[r2];
-            case ADDI -> x[r0] = x[r1] + imm;
-            case SLLI -> x[r0] = x[r1] << imm;
-            case DIV -> x[r0] = x[r1] / divisor(x[r2], in);
-            case REM -> x[r0] = x[r1] % divisor(x[r2], in);
-            case LI, LA -> x[r0] = imm;
+            case ADDI -> x[r0] = x[r1] + immediate;
+            case SLLI -> x[r0] = x[r1] << immediate;
+            case DIV -> x[r0] = x[r1] / divisor(x[r2], instruction);
+            case REM -> x[r0] = x[r1] % divisor(x[r2], instruction);
+            case LI, LA -> x[r0] = immediate;
             case MV -> x[r0] = x[r1];
-            case BEQZ -> next = x[r0] == 0 ? in.getTarget() : next;
-            case BNEZ -> next = x[r0] != 0 ? in.getTarget() : next;
-            case BGE -> next = x[r0] >= x[r1] ? in.getTarget() : next;
-            case J -> next = in.getTarget();
+            case BEQZ -> next = x[r0] == 0 ? instruction.getTarget() : next;
+            case BNEZ -> next = x[r0] != 0 ? instruction.getTarget() : next;
+            case BGE -> next = x[r0] >= x[r1] ? instruction.getTarget() : next;
+            case J -> next = instruction.getTarget();
             case ECALL -> ecall();
-            case FLD -> f[r0] = memory.getDouble(offset(x[r1] + imm, 8, in));
-            case FSD -> memory.putDouble(offset(x[r1] + imm, 8, in), f[r0]);
+            case FLD -> f[r0] = memory.getDouble(offset(x[r1] + immediate, 8, instruction));
+            case FSD -> memory.putDouble(offset(x[r1] + immediate, 8, instruction), f[r0]);
             case FADD_D -> f[r0] = f[r1] + f[r2];
             case FSUB_D -> f[r0] = f[r1] - f[r2];
             case FMUL_D -> f[r0] = f[r1] * f[r2];
@@ -85,7 +85,7 @@ public class Simulator {
             case FLT_D -> x[r0] = f[r1] < f[r2] ? 1 : 0;
             case FLE_D -> x[r0] = f[r1] <= f[r2] ? 1 : 0;
             case FCVT_D_L -> f[r0] = x[r1];
-            case FCVT_L_D -> x[r0] = in.getRounding().equals("rtz") ? (long) f[r1] : (long) Math.rint(f[r1]);
+            case FCVT_L_D -> x[r0] = instruction.getRounding().equals("rtz") ? (long) f[r1] : (long) Math.rint(f[r1]);
             case FMV_D -> f[r0] = f[r1];
             case FNEG_D -> f[r0] = -f[r1];
         }
@@ -93,19 +93,19 @@ public class Simulator {
     }
 
     // division entre cero
-    private long divisor(long value, Instruction in) {
+    private long divisor(long value, Instruction instruction) {
         if (value == 0) {
-            throw new RiscVException(in.getLine(), "División entre cero en '" + in.getSource() + "'");
+            throw new RiscVException(instruction.getLine(), "División entre cero en '" + instruction.getSource() + "'");
         }
         return value;
     }
 
     // validar direccion
-    private int offset(long address, int size, Instruction in) {
+    private int offset(long address, int size, Instruction instruction) {
         long relative = address - AssembledProgram.DATA_BASE;
         if (relative < 0 || relative + size > memory.capacity()) {
-            throw new RiscVException(in.getLine(), "Acceso a la dirección inválida 0x" + Long.toHexString(address)
-                    + " en '" + in.getSource() + "'");
+            throw new RiscVException(instruction.getLine(), "Acceso a la dirección inválida 0x" + Long.toHexString(address)
+                    + " en '" + instruction.getSource() + "'");
         }
         return (int) relative;
     }

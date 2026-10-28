@@ -5,7 +5,7 @@ import practica.compi2.c3d.IntermediateCodeUtils;
 
 public class NativeLibrary {
 
-    public static void generate(IntermediateCodeUtils u) {
+    public static void generate(IntermediateCodeUtils utils) {
         List<NativeFunction> natives = List.of(
                 new PrintStringNative(),
                 new ConcatNative(),
@@ -16,7 +16,7 @@ public class NativeLibrary {
                 new StringToIntNative(),
                 new StringToFloatNative());
         for (NativeFunction nativeFunction : natives) {
-            nativeFunction.generate(u);
+            nativeFunction.generate(utils);
         }
     }
 }

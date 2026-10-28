@@ -39,22 +39,22 @@ public class Operation3D extends Cuarteta {
 
     // operar dos valores
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        first.loadRiscV(rb, "ft0");
-        second.loadRiscV(rb, "ft1");
+    public void toRiscV(RiscVBuilder builder) {
+        first.loadRiscV(builder, "ft0");
+        second.loadRiscV(builder, "ft1");
         switch (operation) {
-            case "+" -> rb.instruction("fadd.d ft0, ft0, ft1");
-            case "-" -> rb.instruction("fsub.d ft0, ft0, ft1");
-            case "*" -> rb.instruction("fmul.d ft0, ft0, ft1");
-            case "/" -> rb.instruction("fdiv.d ft0, ft0, ft1");
+            case "+" -> builder.instruction("fadd.d ft0, ft0, ft1");
+            case "-" -> builder.instruction("fsub.d ft0, ft0, ft1");
+            case "*" -> builder.instruction("fmul.d ft0, ft0, ft1");
+            case "/" -> builder.instruction("fdiv.d ft0, ft0, ft1");
             default -> {
-                rb.instruction("fcvt.l.d t0, ft0, rtz");
-                rb.instruction("fcvt.l.d t1, ft1, rtz");
-                rb.instruction("rem t0, t0, t1");
-                rb.instruction("fcvt.d.l ft0, t0");
+                builder.instruction("fcvt.l.d t0, ft0, rtz");
+                builder.instruction("fcvt.l.d t1, ft1, rtz");
+                builder.instruction("rem t0, t0, t1");
+                builder.instruction("fcvt.d.l ft0, t0");
             }
         }
-        assignable.storeRiscV(rb, "ft0");
+        assignable.storeRiscV(builder, "ft0");
     }
 
     @Override

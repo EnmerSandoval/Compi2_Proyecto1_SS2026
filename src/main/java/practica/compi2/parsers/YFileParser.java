@@ -12,14 +12,14 @@ import practica.compi2.visitors.y.YProgramVisitor;
 
 public class YFileParser {
 
-    private final ErrorManager em;
+    private final ErrorManager errorManager;
 
-    public YFileParser(ErrorManager em) {
-        this.em = em;
+    public YFileParser(ErrorManager errorManager) {
+        this.errorManager = errorManager;
     }
 
     public YProgram parse(String fileName, String code) {
-        SyntaxErrorListener errorListener = new SyntaxErrorListener(em, fileName);
+        SyntaxErrorListener errorListener = new SyntaxErrorListener(errorManager, fileName);
 
         YLexer lexer = new YLexer(CharStreams.fromString(code));
         lexer.removeErrorListeners();

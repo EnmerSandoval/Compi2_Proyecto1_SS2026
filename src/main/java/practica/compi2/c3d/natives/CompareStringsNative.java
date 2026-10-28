@@ -15,32 +15,32 @@ public class CompareStringsNative extends NativeFunction {
     public static final String NAME = "nativeCompararCadenas";
 
     @Override
-    public void generate(IntermediateCodeUtils u) {
-        u.startFunction(NAME, 3);
-        TemporalAccess first = parameter(u, 1);
-        TemporalAccess second = parameter(u, 2);
-        TemporalAccess firstChar = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        TemporalAccess secondChar = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int loopLabel = u.getCounter().getAndIncrementLabelCount();
-        int equalLabel = u.getCounter().getAndIncrementLabelCount();
-        int differentLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
+    public void generate(IntermediateCodeUtils utils) {
+        utils.startFunction(NAME, 3);
+        TemporalAccess first = parameter(utils, 1);
+        TemporalAccess second = parameter(utils, 2);
+        TemporalAccess firstChar = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        TemporalAccess secondChar = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int loopLabel = utils.getCounter().getAndIncrementLabelCount();
+        int equalLabel = utils.getCounter().getAndIncrementLabelCount();
+        int differentLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
 
-        u.getCuartetas().add(new LabelDefinition3D(loopLabel));
-        u.getCuartetas().add(new Assignation3D(firstChar, new HeapAccess(first)));
-        u.getCuartetas().add(new Assignation3D(secondChar, new HeapAccess(second)));
-        u.getCuartetas().add(new Conditional3D(firstChar, secondChar, differentLabel, "!="));
-        u.getCuartetas().add(new Conditional3D(firstChar, new Literal3D(0), equalLabel, "=="));
-        u.getCuartetas().add(new Operation3D(first, first, new Literal3D(1), "+"));
-        u.getCuartetas().add(new Operation3D(second, second, new Literal3D(1), "+"));
-        u.getCuartetas().add(new Goto3D(loopLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(loopLabel));
+        utils.getCuartetas().add(new Assignation3D(firstChar, new HeapAccess(first)));
+        utils.getCuartetas().add(new Assignation3D(secondChar, new HeapAccess(second)));
+        utils.getCuartetas().add(new Conditional3D(firstChar, secondChar, differentLabel, "!="));
+        utils.getCuartetas().add(new Conditional3D(firstChar, new Literal3D(0), equalLabel, "=="));
+        utils.getCuartetas().add(new Operation3D(first, first, new Literal3D(1), "+"));
+        utils.getCuartetas().add(new Operation3D(second, second, new Literal3D(1), "+"));
+        utils.getCuartetas().add(new Goto3D(loopLabel));
 
-        u.getCuartetas().add(new LabelDefinition3D(equalLabel));
-        returnValue(u, new Literal3D(1));
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(differentLabel));
-        returnValue(u, new Literal3D(0));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
-        u.endFunction();
+        utils.getCuartetas().add(new LabelDefinition3D(equalLabel));
+        returnValue(utils, new Literal3D(1));
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(differentLabel));
+        returnValue(utils, new Literal3D(0));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
+        utils.endFunction();
     }
 }

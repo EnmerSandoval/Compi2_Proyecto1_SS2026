@@ -10,10 +10,10 @@ import practica.compi2.semantic.types.TypeRules;
 
 public class CallMatcher {
 
-    public static List<Type> validateArguments(List<Expression> arguments, SemanticContext sc) {
+    public static List<Type> validateArguments(List<Expression> arguments, SemanticContext context) {
         List<Type> types = new ArrayList<>();
         for (Expression argument : arguments) {
-            types.add(argument.validate(sc));
+            types.add(argument.validate(context));
         }
         return types;
     }
@@ -47,13 +47,13 @@ public class CallMatcher {
     }
 
     public static void checkReferences(FunctionSymbol function, List<Expression> arguments,
-            SemanticContext sc) {
+            SemanticContext context) {
         List<Symbol> parameters = function.getParameters();
         for (int i = 0; i < parameters.size() && i < arguments.size(); i++) {
             Type parameterType = parameters.get(i).getType();
             boolean byReference = parameterType.isArray() || parameterType.isStruct();
             if (byReference && !arguments.get(i).isAssignable()) {
-                sc.error(arguments.get(i).getPosition(), parameters.get(i).getName(),
+                context.error(arguments.get(i).getPosition(), parameters.get(i).getName(),
                         "El parámetro '" + parameters.get(i).getName() + "' se pasa por referencia, se debe enviar una variable");
             }
         }

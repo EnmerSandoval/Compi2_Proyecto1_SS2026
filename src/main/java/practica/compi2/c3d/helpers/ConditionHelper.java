@@ -11,22 +11,22 @@ import practica.compi2.c3d.cuartetas.LabelDefinition3D;
 
 public class ConditionHelper {
 
-    public static void jumpIfTrue(IntermediateCodeUtils u, MemoryAccess condition, int trueLabel, int falseLabel) {
-        u.getCuartetas().add(new Conditional3D(condition, new Literal3D(1), trueLabel, "=="));
-        u.getCuartetas().add(new Goto3D(falseLabel));
+    public static void jumpIfTrue(IntermediateCodeUtils utils, MemoryAccess condition, int trueLabel, int falseLabel) {
+        utils.getCuartetas().add(new Conditional3D(condition, new Literal3D(1), trueLabel, "=="));
+        utils.getCuartetas().add(new Goto3D(falseLabel));
     }
 
-    public static TemporalAccess compare(IntermediateCodeUtils u, MemoryAccess left, MemoryAccess right,
+    public static TemporalAccess compare(IntermediateCodeUtils utils, MemoryAccess left, MemoryAccess right,
             String operator) {
-        TemporalAccess temp = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int trueLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new Conditional3D(left, right, trueLabel, operator));
-        u.getCuartetas().add(new Assignation3D(temp, new Literal3D(0)));
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(trueLabel));
-        u.getCuartetas().add(new Assignation3D(temp, new Literal3D(1)));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+        TemporalAccess temp = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int trueLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new Conditional3D(left, right, trueLabel, operator));
+        utils.getCuartetas().add(new Assignation3D(temp, new Literal3D(0)));
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(trueLabel));
+        utils.getCuartetas().add(new Assignation3D(temp, new Literal3D(1)));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
         return temp;
     }
 }

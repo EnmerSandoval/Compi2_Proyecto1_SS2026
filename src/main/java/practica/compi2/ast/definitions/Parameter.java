@@ -24,10 +24,10 @@ public class Parameter extends AstNode {
         this.reference = reference;
     }
 
-    public Symbol createSymbol(SemanticContext sc) {
-        Type resolved = sc.resolveType(type);
+    public Symbol createSymbol(SemanticContext context) {
+        Type resolved = context.resolveType(type);
         if (resolved.isStruct() && !reference) {
-            sc.error(position, name, "La estructura debe recibirse por referencia: {} " + resolved + " " + name);
+            context.error(position, name, "La estructura debe recibirse por referencia: {} " + resolved + " " + name);
         }
         return new Symbol(name, resolved, SymbolKind.PARAMETER, 0);
     }

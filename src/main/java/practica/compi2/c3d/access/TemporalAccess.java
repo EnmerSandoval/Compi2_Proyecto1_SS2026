@@ -16,14 +16,14 @@ public class TemporalAccess extends MemoryAccess {
 
     // leer temporal
     @Override
-    public void loadRiscV(RiscVBuilder rb, String floatRegister) {
-        rb.instruction("fld " + floatRegister + ", " + rb.temporalOperand(temp));
+    public void loadRiscV(RiscVBuilder builder, String floatRegister) {
+        builder.instruction("fld " + floatRegister + ", " + builder.temporalOperand(temp));
     }
 
     // guardar temporal
     @Override
-    public void storeRiscV(RiscVBuilder rb, String floatRegister) {
-        rb.instruction("fsd " + floatRegister + ", " + rb.temporalOperand(temp));
+    public void storeRiscV(RiscVBuilder builder, String floatRegister) {
+        builder.instruction("fsd " + floatRegister + ", " + builder.temporalOperand(temp));
     }
 
     @Override

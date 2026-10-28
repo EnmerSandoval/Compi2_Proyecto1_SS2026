@@ -15,37 +15,37 @@ import practica.compi2.semantic.types.Type;
 
 public class StructHelper {
 
-    public static TemporalAccess allocate(IntermediateCodeUtils u, StructSymbol struct) {
-        return allocate(u, struct, new ArrayList<>());
+    public static TemporalAccess allocate(IntermediateCodeUtils utils, StructSymbol struct) {
+        return allocate(utils, struct, new ArrayList<>());
     }
 
-    private static TemporalAccess allocate(IntermediateCodeUtils u, StructSymbol struct, List<String> chain) {
+    private static TemporalAccess allocate(IntermediateCodeUtils utils, StructSymbol struct, List<String> chain) {
         List<Symbol> fields = struct.getFields();
         List<Declaration> declarations = struct.getDefinition().getFields();
-        int size = u.getTypeTable().sizeOf(struct.getName());
-        TemporalAccess ptr = MemoryHelper.allocate(u, new Literal3D(size));
+        int size = utils.getTypeTable().sizeOf(struct.getName());
+        TemporalAccess ptr = MemoryHelper.allocate(utils, new Literal3D(size));
         chain.add(struct.getName());
         for (int i = 0; i < fields.size(); i++) {
-            MemoryAccess value = defaultField(u, fields.get(i).getType(), declarations.get(i), chain);
+            MemoryAccess value = defaultField(utils, fields.get(i).getType(), declarations.get(i), chain);
             if (value != null) {
-                u.getCuartetas().add(new Assignation3D(MemoryHelper.heapSlot(u, ptr, new Literal3D(i)), value));
+                utils.getCuartetas().add(new Assignation3D(MemoryHelper.heapSlot(utils, ptr, new Literal3D(i)), value));
             }
         }
         chain.remove(chain.size() - 1);
         return ptr;
     }
 
-    private static MemoryAccess defaultField(IntermediateCodeUtils u, Type type, Declaration declaration,
+    private static MemoryAccess defaultField(IntermediateCodeUtils utils, Type type, Declaration declaration,
             List<String> chain) {
         if (declaration.isArray()) {
             List<MemoryAccess> dimensions = new ArrayList<>();
             for (Expression size : declaration.getSizes()) {
-                dimensions.add(size.toIntermediateCode(u));
+                dimensions.add(size.toIntermediateCode(utils));
             }
-            return ArrayHelper.allocate(u, dimensions);
+            return ArrayHelper.allocate(utils, dimensions);
         }
         if (type.isStruct() && !chain.contains(type.getName())) {
-            return allocate(u, u.getStruct(type.getName()), chain);
+            return allocate(utils, utils.getStruct(type.getName()), chain);
         }
         return null;
     }

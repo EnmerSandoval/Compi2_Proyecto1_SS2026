@@ -39,37 +39,37 @@ public class AttributeDefinition extends AstNode {
         this.value = value;
     }
 
-    public void registerIn(ClassSymbol owner, SemanticContext sc) {
-        Type resolved = sc.resolveType(type);
+    public void registerIn(ClassSymbol owner, SemanticContext context) {
+        Type resolved = context.resolveType(type);
         int offset = owner.getFirstAttributeOffset() + owner.getAttributes().size();
         symbol = new Symbol(name, resolved, SymbolKind.ATTRIBUTE, offset);
         symbol.setAccess(access);
         symbol.setOwnerClass(owner);
         symbol.setScope(owner.getName());
         if (!owner.addAttribute(symbol)) {
-            sc.error(position, name, "El atributo '" + name + "' ya fue declarado en la clase " + owner.getName());
+            context.error(position, name, "El atributo '" + name + "' ya fue declarado en la clase " + owner.getName());
         }
-        sc.report(symbol);
+        context.report(symbol);
     }
 
-    public void validate(SemanticContext sc) {
+    public void validate(SemanticContext context) {
         if (value != null) {
-            new AssignmentChecker(sc).check(value, symbol.getType(), new ArrayList<>());
+            new AssignmentChecker(context).check(value, symbol.getType(), new ArrayList<>());
         }
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
         if (value == null) {
             return;
         }
         MemoryAccess access;
         if (value instanceof InitializerList) {
-            access = InitializerHelper.build(u, (InitializerList) value, symbol.getType(), new ArrayList<>());
+            access = InitializerHelper.build(utils, (InitializerList) value, symbol.getType(), new ArrayList<>());
         } else {
-            access = value.toIntermediateCode(u);
+            access = value.toIntermediateCode(utils);
         }
-        MemoryAccess thisPointer = MemoryHelper.thisPointer(u);
-        u.getCuartetas().add(new Assignation3D(MemoryHelper.heapSlot(u, thisPointer, new Literal3D(symbol.getOffset())), access));
+        MemoryAccess thisPointer = MemoryHelper.thisPointer(utils);
+        utils.getCuartetas().add(new Assignation3D(MemoryHelper.heapSlot(utils, thisPointer, new Literal3D(symbol.getOffset())), access));
     }
 
     @Override

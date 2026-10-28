@@ -11,8 +11,8 @@ public class Halt3D extends Cuarteta {
 
     // terminar programa
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.syscall(10);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.syscall(10);
     }
 
     @Override

@@ -32,40 +32,40 @@ public class YProgram extends Program {
         functions.add(function);
     }
 
-    public void registerTypes(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new YCompatibilityTable()));
+    public void registerTypes(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new YCompatibilityTable()));
         for (StructDefinition struct : structs) {
-            struct.registerName(sc);
+            struct.registerName(context);
         }
     }
 
-    public void registerMembers(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new YCompatibilityTable()));
+    public void registerMembers(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new YCompatibilityTable()));
         for (StructDefinition struct : structs) {
-            struct.registerFields(sc);
+            struct.registerFields(context);
         }
         for (FunctionDefinition function : functions) {
-            function.register(sc);
+            function.register(context);
         }
     }
 
-    public void validate(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new YCompatibilityTable()));
+    public void validate(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new YCompatibilityTable()));
         for (FunctionDefinition function : functions) {
-            function.validate(sc);
+            function.validate(context);
         }
     }
 
-    public void registerStructs(IntermediateCodeUtils u) {
+    public void registerStructs(IntermediateCodeUtils utils) {
         for (StructDefinition struct : structs) {
-            u.registerStruct(struct.getSymbol());
+            utils.registerStruct(struct.getSymbol());
         }
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.useBooleanWords("verdadero", "falso");
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.useBooleanWords("verdadero", "falso");
         for (FunctionDefinition function : functions) {
-            function.toIntermediateCode(u);
+            function.toIntermediateCode(utils);
         }
     }
 

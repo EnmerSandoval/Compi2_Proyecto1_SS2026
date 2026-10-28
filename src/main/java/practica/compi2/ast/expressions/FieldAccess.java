@@ -27,8 +27,8 @@ public class FieldAccess extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        Type targetType = target.validate(sc);
+    public Type validate(SemanticContext context) {
+        Type targetType = target.validate(context);
         type = Type.ERROR;
         if (targetType.isError()) {
             return type;
@@ -39,16 +39,16 @@ public class FieldAccess extends Expression {
             return type;
         }
         if (!targetType.isStruct() && !targetType.isClass()) {
-            sc.error(position, field, "Un valor de tipo " + targetType + " no tiene campos");
+            context.error(position, field, "Un valor de tipo " + targetType + " no tiene campos");
             return type;
         }
-        fieldSymbol = sc.findMember(targetType, field);
+        fieldSymbol = context.findMember(targetType, field);
         if (fieldSymbol == null) {
-            sc.error(position, field, targetType + " no tiene un campo llamado '" + field + "'");
+            context.error(position, field, targetType + " no tiene un campo llamado '" + field + "'");
             return type;
         }
         if (fieldSymbol.getOwnerClass() != null) {
-            sc.checkAccess(position, field, fieldSymbol.getAccess(), fieldSymbol.getOwnerClass(),
+            context.checkAccess(position, field, fieldSymbol.getAccess(), fieldSymbol.getOwnerClass(),
                     "El atributo '" + field + "'");
         }
         type = fieldSymbol.getType();
@@ -56,16 +56,16 @@ public class FieldAccess extends Expression {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        return MemoryHelper.load(u, toAddress(u));
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        return MemoryHelper.load(utils, toAddress(utils));
     }
 
     @Override
-    public MemoryAccess toAddress(IntermediateCodeUtils u) {
-        MemoryAccess ptr = target.toIntermediateCode(u);
-        NullCheckHelper.check(u, target, ptr, position);
+    public MemoryAccess toAddress(IntermediateCodeUtils utils) {
+        MemoryAccess ptr = target.toIntermediateCode(utils);
+        NullCheckHelper.check(utils, target, ptr, position);
         int offset = arrayLength ? 0 : fieldSymbol.getOffset();
-        return MemoryHelper.heapSlot(u, ptr, new Literal3D(offset));
+        return MemoryHelper.heapSlot(utils, ptr, new Literal3D(offset));
     }
 
     @Override

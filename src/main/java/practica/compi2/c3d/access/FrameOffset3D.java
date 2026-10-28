@@ -16,8 +16,8 @@ public class FrameOffset3D extends MemoryAccess {
 
     // cargar desplazamiento
     @Override
-    public void loadRiscV(RiscVBuilder rb, String floatRegister) {
-        rb.loadDouble(floatRegister, value);
+    public void loadRiscV(RiscVBuilder builder, String floatRegister) {
+        builder.loadDouble(floatRegister, value);
     }
 
     @Override

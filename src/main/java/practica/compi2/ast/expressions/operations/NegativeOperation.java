@@ -22,10 +22,10 @@ public class NegativeOperation extends UnaryOperation {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess value = operand.toIntermediateCode(u);
-        TemporalAccess temp = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        u.getCuartetas().add(new Operation3D(temp, new Literal3D(0), value, "-"));
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess value = operand.toIntermediateCode(utils);
+        TemporalAccess temp = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        utils.getCuartetas().add(new Operation3D(temp, new Literal3D(0), value, "-"));
         return temp;
     }
 

@@ -24,18 +24,18 @@ public class RelationalOperation extends Operation {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess leftMemoryAccess = left.toIntermediateCode(u);
-        MemoryAccess rightMemoryAccess = right.toIntermediateCode(u);
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess leftMemoryAccess = left.toIntermediateCode(utils);
+        MemoryAccess rightMemoryAccess = right.toIntermediateCode(utils);
         if (left.getType().isString() && right.getType().isString()) {
-            TemporalAccess equal = StringHelper.equalsText(u, leftMemoryAccess, rightMemoryAccess);
+            TemporalAccess equal = StringHelper.equalsText(utils, leftMemoryAccess, rightMemoryAccess);
             if (operator.equals("!=")) {
-                TemporalAccess different = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-                u.getCuartetas().add(new Operation3D(different, new Literal3D(1), equal, "-"));
+                TemporalAccess different = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+                utils.getCuartetas().add(new Operation3D(different, new Literal3D(1), equal, "-"));
                 return different;
             }
             return equal;
         }
-        return ConditionHelper.compare(u, leftMemoryAccess, rightMemoryAccess, operator);
+        return ConditionHelper.compare(utils, leftMemoryAccess, rightMemoryAccess, operator);
     }
 }

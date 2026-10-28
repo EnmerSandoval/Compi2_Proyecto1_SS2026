@@ -25,25 +25,25 @@ public class OrOperation extends Operation {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        TemporalAccess temp = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int checkRightLabel = u.getCounter().getAndIncrementLabelCount();
-        int trueLabel = u.getCounter().getAndIncrementLabelCount();
-        int falseLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        TemporalAccess temp = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int checkRightLabel = utils.getCounter().getAndIncrementLabelCount();
+        int trueLabel = utils.getCounter().getAndIncrementLabelCount();
+        int falseLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
 
-        MemoryAccess leftMemoryAccess = left.toIntermediateCode(u);
-        ConditionHelper.jumpIfTrue(u, leftMemoryAccess, trueLabel, checkRightLabel);
-        u.getCuartetas().add(new LabelDefinition3D(checkRightLabel));
-        MemoryAccess rightMemoryAccess = right.toIntermediateCode(u);
-        ConditionHelper.jumpIfTrue(u, rightMemoryAccess, trueLabel, falseLabel);
+        MemoryAccess leftMemoryAccess = left.toIntermediateCode(utils);
+        ConditionHelper.jumpIfTrue(utils, leftMemoryAccess, trueLabel, checkRightLabel);
+        utils.getCuartetas().add(new LabelDefinition3D(checkRightLabel));
+        MemoryAccess rightMemoryAccess = right.toIntermediateCode(utils);
+        ConditionHelper.jumpIfTrue(utils, rightMemoryAccess, trueLabel, falseLabel);
 
-        u.getCuartetas().add(new LabelDefinition3D(trueLabel));
-        u.getCuartetas().add(new Assignation3D(temp, new Literal3D(1)));
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(falseLabel));
-        u.getCuartetas().add(new Assignation3D(temp, new Literal3D(0)));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(trueLabel));
+        utils.getCuartetas().add(new Assignation3D(temp, new Literal3D(1)));
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(falseLabel));
+        utils.getCuartetas().add(new Assignation3D(temp, new Literal3D(0)));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
         return temp;
     }
 }

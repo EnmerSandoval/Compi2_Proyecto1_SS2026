@@ -33,40 +33,40 @@ public class MethodCall extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        Type targetType = target.validate(sc);
-        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, sc);
+    public Type validate(SemanticContext context) {
+        Type targetType = target.validate(context);
+        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, context);
         type = Type.ERROR;
         if (targetType.isError()) {
             return type;
         }
         if (!targetType.isClass()) {
-            sc.error(position, name, "Solo se pueden llamar métodos sobre objetos, no sobre " + targetType);
+            context.error(position, name, "Solo se pueden llamar métodos sobre objetos, no sobre " + targetType);
             return type;
         }
-        ownerClass = sc.getGlobals().getClass(targetType.getName());
-        method = CallMatcher.findOverload(ownerClass.getMethodsNamed(name), argumentTypes, sc.getRules());
+        ownerClass = context.getGlobals().getClass(targetType.getName());
+        method = CallMatcher.findOverload(ownerClass.getMethodsNamed(name), argumentTypes, context.getRules());
         if (method == null) {
-            sc.error(position, name, "La clase " + ownerClass.getName() + " no tiene un método '" + name
+            context.error(position, name, "La clase " + ownerClass.getName() + " no tiene un método '" + name
                     + "' que reciba esos argumentos");
             return type;
         }
-        sc.checkAccess(position, name, method.getAccess(), method.getOwnerClass(),
+        context.checkAccess(position, name, method.getAccess(), method.getOwnerClass(),
                 "El método " + method.getSignature());
         type = method.getReturnType();
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess object = target.toIntermediateCode(u);
-        NullCheckHelper.check(u, target, object, position);
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess object = target.toIntermediateCode(utils);
+        NullCheckHelper.check(utils, target, object, position);
         List<MemoryAccess> values = new ArrayList<>();
         for (Expression argument : arguments) {
-            values.add(argument.toIntermediateCode(u));
+            values.add(argument.toIntermediateCode(utils));
         }
-        String callee = target instanceof SuperAccess ? method.getCName() : DispatchHelper.target(u, ownerClass, method);
-        return CallHelper.call(u, callee, object, values);
+        String callee = target instanceof SuperAccess ? method.getCName() : DispatchHelper.target(utils, ownerClass, method);
+        return CallHelper.call(utils, callee, object, values);
     }
 
     @Override

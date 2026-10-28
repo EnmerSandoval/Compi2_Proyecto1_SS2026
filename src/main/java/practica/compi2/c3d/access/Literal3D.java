@@ -10,12 +10,12 @@ public class Literal3D extends MemoryAccess {
 
     // cargar constante
     @Override
-    public void loadRiscV(RiscVBuilder rb, String floatRegister) {
+    public void loadRiscV(RiscVBuilder builder, String floatRegister) {
         if (literal instanceof Number number) {
-            rb.loadDouble(floatRegister, number.doubleValue());
+            builder.loadDouble(floatRegister, number.doubleValue());
             return;
         }
-        rb.loadDouble(floatRegister, Double.parseDouble(literal.toString()));
+        builder.loadDouble(floatRegister, Double.parseDouble(literal.toString()));
     }
 
     @Override

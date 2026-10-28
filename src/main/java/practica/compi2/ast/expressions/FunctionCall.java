@@ -28,38 +28,38 @@ public class FunctionCall extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        if (sc.getCurrentClass() != null && !sc.getCurrentClass().getMethodsNamed(name).isEmpty()) {
+    public Type validate(SemanticContext context) {
+        if (context.getCurrentClass() != null && !context.getCurrentClass().getMethodsNamed(name).isEmpty()) {
             methodCall = new MethodCall(position, new ThisAccess(position), name, arguments);
-            type = methodCall.validate(sc);
+            type = methodCall.validate(context);
             return type;
         }
-        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, sc);
+        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, context);
         type = Type.ERROR;
-        function = sc.getGlobals().getFunction(name);
+        function = context.getGlobals().getFunction(name);
         if (function == null) {
-            sc.error(position, name, "La función '" + name + "' no existe o no fue importada");
+            context.error(position, name, "La función '" + name + "' no existe o no fue importada");
             return type;
         }
-        if (!CallMatcher.matches(function, argumentTypes, sc.getRules())) {
-            sc.error(position, name, "Los argumentos no coinciden con la función " + function.getSignature());
+        if (!CallMatcher.matches(function, argumentTypes, context.getRules())) {
+            context.error(position, name, "Los argumentos no coinciden con la función " + function.getSignature());
             return type;
         }
-        CallMatcher.checkReferences(function, arguments, sc);
+        CallMatcher.checkReferences(function, arguments, context);
         type = function.getReturnType();
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
         if (methodCall != null) {
-            return methodCall.toIntermediateCode(u);
+            return methodCall.toIntermediateCode(utils);
         }
         List<MemoryAccess> values = new ArrayList<>();
         for (Expression argument : arguments) {
-            values.add(argument.toIntermediateCode(u));
+            values.add(argument.toIntermediateCode(utils));
         }
-        return CallHelper.call(u, function.getCName(), null, values);
+        return CallHelper.call(utils, function.getCName(), null, values);
     }
 
     @Override

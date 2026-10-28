@@ -19,11 +19,11 @@ public abstract class Expression extends AstNode {
         super(position);
     }
 
-    public abstract Type validate(SemanticContext sc);
+    public abstract Type validate(SemanticContext context);
 
-    public abstract MemoryAccess toIntermediateCode(IntermediateCodeUtils u);
+    public abstract MemoryAccess toIntermediateCode(IntermediateCodeUtils utils);
 
-    public MemoryAccess toAddress(IntermediateCodeUtils u) {
+    public MemoryAccess toAddress(IntermediateCodeUtils utils) {
         throw new UnsupportedOperationException("Esta expresión no tiene una dirección de memoria");
     }
 

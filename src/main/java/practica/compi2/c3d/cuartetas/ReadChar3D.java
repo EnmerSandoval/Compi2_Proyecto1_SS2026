@@ -23,10 +23,10 @@ public class ReadChar3D extends Cuarteta {
 
     // leer caracter
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.syscall(12);
-        rb.instruction("fcvt.d.l ft0, a0");
-        assignable.storeRiscV(rb, "ft0");
+    public void toRiscV(RiscVBuilder builder) {
+        builder.syscall(12);
+        builder.instruction("fcvt.d.l ft0, a0");
+        assignable.storeRiscV(builder, "ft0");
     }
 
     @Override

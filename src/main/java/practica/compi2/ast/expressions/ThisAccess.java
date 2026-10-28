@@ -16,19 +16,19 @@ public class ThisAccess extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        if (sc.getCurrentClass() == null) {
-            sc.error(position, "this", "'this' solo puede usarse dentro de una clase");
+    public Type validate(SemanticContext context) {
+        if (context.getCurrentClass() == null) {
+            context.error(position, "this", "'this' solo puede usarse dentro de una clase");
             type = Type.ERROR;
             return type;
         }
-        type = new Type(TypeKind.CLASS, sc.getCurrentClass().getName(), 0);
+        type = new Type(TypeKind.CLASS, context.getCurrentClass().getName(), 0);
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        return MemoryHelper.thisPointer(u);
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        return MemoryHelper.thisPointer(utils);
     }
 
     @Override

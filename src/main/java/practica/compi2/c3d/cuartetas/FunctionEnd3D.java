@@ -20,9 +20,9 @@ public class FunctionEnd3D extends Cuarteta {
 
     // salir del programa
     @Override
-    public void toRiscV(RiscVBuilder rb) {
+    public void toRiscV(RiscVBuilder builder) {
         if (main) {
-            rb.syscall(10);
+            builder.syscall(10);
         }
     }
 

@@ -25,26 +25,26 @@ public class ReadStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
+    public void validate(SemanticContext context) {
         if (target == null) {
             return;
         }
-        Type targetType = target.validate(sc);
+        Type targetType = target.validate(context);
         if (!target.isAssignable()) {
-            sc.error(position, "<<", "Lo que se lee solo puede guardarse en una variable");
+            context.error(position, "<<", "Lo que se lee solo puede guardarse en una variable");
         } else if (!targetType.isError() && !targetType.isPrimitive()) {
-            sc.error(position, "<<", "No se puede leer un valor de tipo " + targetType);
+            context.error(position, "<<", "No se puede leer un valor de tipo " + targetType);
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess text = CallHelper.call(u, ReadLineNative.NAME, null, new ArrayList<>());
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess text = CallHelper.call(utils, ReadLineNative.NAME, null, new ArrayList<>());
         if (target == null) {
             return;
         }
-        MemoryAccess converted = StringHelper.fromText(u, text, target.getType());
-        u.getCuartetas().add(new Assignation3D(target.toAddress(u), converted));
+        MemoryAccess converted = StringHelper.fromText(utils, text, target.getType());
+        utils.getCuartetas().add(new Assignation3D(target.toAddress(utils), converted));
     }
 
     @Override

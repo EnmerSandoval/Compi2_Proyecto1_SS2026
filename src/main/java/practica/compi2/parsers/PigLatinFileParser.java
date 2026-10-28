@@ -11,14 +11,14 @@ import practica.compi2.visitors.piglatin.PigLatinProgramVisitor;
 
 public class PigLatinFileParser {
 
-    private final ErrorManager em;
+    private final ErrorManager errorManager;
 
-    public PigLatinFileParser(ErrorManager em) {
-        this.em = em;
+    public PigLatinFileParser(ErrorManager errorManager) {
+        this.errorManager = errorManager;
     }
 
     public PigLatinProgram parse(String fileName, String code) {
-        SyntaxErrorListener errorListener = new SyntaxErrorListener(em, fileName);
+        SyntaxErrorListener errorListener = new SyntaxErrorListener(errorManager, fileName);
 
         PigLatinLexer lexer = new PigLatinLexer(CharStreams.fromString(code));
         lexer.removeErrorListeners();

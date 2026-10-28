@@ -13,13 +13,13 @@ import practica.compi2.semantic.types.Type;
 
 public class ArrayFiller {
 
-    private final IntermediateCodeUtils u;
+    private final IntermediateCodeUtils utils;
     private final TemporalAccess ptr;
     private final int dimensionCount;
     private final Type elementType;
 
-    public ArrayFiller(IntermediateCodeUtils u, TemporalAccess ptr, int dimensionCount, Type elementType) {
-        this.u = u;
+    public ArrayFiller(IntermediateCodeUtils utils, TemporalAccess ptr, int dimensionCount, Type elementType) {
+        this.utils = utils;
         this.ptr = ptr;
         this.dimensionCount = dimensionCount;
         this.elementType = elementType;
@@ -40,8 +40,8 @@ public class ArrayFiller {
     }
 
     private void store(Expression element, List<MemoryAccess> elementPath) {
-        MemoryAccess value = InitializerHelper.valueOf(u, element, elementType);
-        MemoryAccess address = ArrayHelper.elementAddress(u, ptr, elementPath, dimensionCount);
-        u.getCuartetas().add(new Assignation3D(address, value));
+        MemoryAccess value = InitializerHelper.valueOf(utils, element, elementType);
+        MemoryAccess address = ArrayHelper.elementAddress(utils, ptr, elementPath, dimensionCount);
+        utils.getCuartetas().add(new Assignation3D(address, value));
     }
 }

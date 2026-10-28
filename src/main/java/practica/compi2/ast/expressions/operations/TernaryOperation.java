@@ -29,32 +29,32 @@ public class TernaryOperation extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        sc.checkCondition(condition, "operador ternario");
-        Type trueType = trueValue.validate(sc);
-        Type falseType = falseValue.validate(sc);
-        type = sc.getRules().commonType(trueType, falseType);
+    public Type validate(SemanticContext context) {
+        context.checkCondition(condition, "operador ternario");
+        Type trueType = trueValue.validate(context);
+        Type falseType = falseValue.validate(context);
+        type = context.getRules().commonType(trueType, falseType);
         if (type.isError() && !trueType.isError() && !falseType.isError()) {
-            sc.error(position, "?", "Los dos valores del ternario deben ser compatibles: "
+            context.error(position, "?", "Los dos valores del ternario deben ser compatibles: "
                     + trueType + " y " + falseType);
         }
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        TemporalAccess temp = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int trueLabel = u.getCounter().getAndIncrementLabelCount();
-        int falseLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        MemoryAccess conditionAccess = condition.toIntermediateCode(u);
-        ConditionHelper.jumpIfTrue(u, conditionAccess, trueLabel, falseLabel);
-        u.getCuartetas().add(new LabelDefinition3D(trueLabel));
-        u.getCuartetas().add(new Assignation3D(temp, trueValue.toIntermediateCode(u)));
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(falseLabel));
-        u.getCuartetas().add(new Assignation3D(temp, falseValue.toIntermediateCode(u)));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        TemporalAccess temp = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int trueLabel = utils.getCounter().getAndIncrementLabelCount();
+        int falseLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        MemoryAccess conditionAccess = condition.toIntermediateCode(utils);
+        ConditionHelper.jumpIfTrue(utils, conditionAccess, trueLabel, falseLabel);
+        utils.getCuartetas().add(new LabelDefinition3D(trueLabel));
+        utils.getCuartetas().add(new Assignation3D(temp, trueValue.toIntermediateCode(utils)));
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(falseLabel));
+        utils.getCuartetas().add(new Assignation3D(temp, falseValue.toIntermediateCode(utils)));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
         return temp;
     }
 

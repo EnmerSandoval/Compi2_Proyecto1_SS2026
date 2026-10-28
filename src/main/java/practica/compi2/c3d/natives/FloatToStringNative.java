@@ -17,48 +17,49 @@ public class FloatToStringNative extends NativeFunction {
     public static final String NAME = "nativeDecimalACadena";
 
     @Override
-    public void generate(IntermediateCodeUtils u) {
-        u.startFunction(NAME, 2);
-        TemporalAccess number = parameter(u, 1);
-        TemporalAccess temp = MemoryHelper.load(u, PointerAccess.HEAP);
-        int positiveLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new Conditional3D(number, new Literal3D(0), positiveLabel, ">="));
-        MemoryHelper.pushToHeap(u, new Literal3D(45));
-        u.getCuartetas().add(new Operation3D(number, new Literal3D(0), number, "-"));
-        u.getCuartetas().add(new LabelDefinition3D(positiveLabel));
+    public void generate(IntermediateCodeUtils utils) {
+        utils.startFunction(NAME, 2);
+        TemporalAccess number = parameter(utils, 1);
+        TemporalAccess temp = MemoryHelper.load(utils, PointerAccess.HEAP);
+        int positiveLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new Conditional3D(number, new Literal3D(0), positiveLabel, ">="));
+        MemoryHelper.pushToHeap(utils, new Literal3D(45));
+        utils.getCuartetas().add(new Operation3D(number, new Literal3D(0), number, "-"));
+        utils.getCuartetas().add(new LabelDefinition3D(positiveLabel));
 
-        TemporalAccess integerPart = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        TemporalAccess cents = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        u.getCuartetas().add(new IntegerCast3D(integerPart, number));
-        u.getCuartetas().add(new Operation3D(cents, number, integerPart, "-"));
-        u.getCuartetas().add(new Operation3D(cents, cents, new Literal3D(100), "*"));
-        u.getCuartetas().add(new Operation3D(cents, cents, new Literal3D(0.5), "+"));
-        u.getCuartetas().add(new IntegerCast3D(cents, cents));
-        int noCarryLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new Conditional3D(cents, new Literal3D(100), noCarryLabel, "<"));
-        u.getCuartetas().add(new Operation3D(integerPart, integerPart, new Literal3D(1), "+"));
-        u.getCuartetas().add(new Operation3D(cents, cents, new Literal3D(100), "-"));
-        u.getCuartetas().add(new LabelDefinition3D(noCarryLabel));
+        TemporalAccess integerPart = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        TemporalAccess cents = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        utils.getCuartetas().add(new IntegerCast3D(integerPart, number));
+        utils.getCuartetas().add(new Operation3D(cents, number, integerPart, "-"));
+        utils.getCuartetas().add(new Operation3D(cents, cents, new Literal3D(100), "*"));
+        utils.getCuartetas().add(new Operation3D(cents, cents, new Literal3D(0.5), "+"));
+        utils.getCuartetas().add(new IntegerCast3D(cents, cents));
+        int noCarryLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new Conditional3D(cents, new Literal3D(100), noCarryLabel, "<"));
+        utils.getCuartetas().add(new Operation3D(integerPart, integerPart, new Literal3D(1), "+"));
+        utils.getCuartetas().add(new Operation3D(cents, cents, new Literal3D(100), "-"));
+        utils.getCuartetas().add(new LabelDefinition3D(noCarryLabel));
 
-        CallHelper.call(u, IntToStringNative.NAME, null, List.of(integerPart));
-        u.getCuartetas().add(new Operation3D(PointerAccess.HEAP, PointerAccess.HEAP, new Literal3D(1), "-"));
-        MemoryHelper.pushToHeap(u, new Literal3D(46));
-        writeCents(u, cents);
-        MemoryHelper.pushToHeap(u, new Literal3D(0));
-        returnValue(u, temp);
-        u.endFunction();
+        CallHelper.call(utils, IntToStringNative.NAME, null, List.of(integerPart));
+        utils.getCuartetas().add(new Operation3D(PointerAccess.HEAP, PointerAccess.HEAP, new Literal3D(1), "-"));
+        MemoryHelper.pushToHeap(utils, new Literal3D(46));
+        writeCents(utils, cents);
+        MemoryHelper.pushToHeap(utils, new Literal3D(0));
+        MemoryHelper.checkHeapLimit(utils);
+        returnValue(utils, temp);
+        utils.endFunction();
     }
 
-    private void writeCents(IntermediateCodeUtils u, TemporalAccess cents) {
-        TemporalAccess tens = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        TemporalAccess units = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        u.getCuartetas().add(new Operation3D(tens, cents, new Literal3D(10), "/"));
-        u.getCuartetas().add(new IntegerCast3D(tens, tens));
-        u.getCuartetas().add(new Operation3D(units, tens, new Literal3D(10), "*"));
-        u.getCuartetas().add(new Operation3D(units, cents, units, "-"));
-        u.getCuartetas().add(new Operation3D(tens, tens, new Literal3D(48), "+"));
-        u.getCuartetas().add(new Operation3D(units, units, new Literal3D(48), "+"));
-        MemoryHelper.pushToHeap(u, tens);
-        MemoryHelper.pushToHeap(u, units);
+    private void writeCents(IntermediateCodeUtils utils, TemporalAccess cents) {
+        TemporalAccess tens = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        TemporalAccess units = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        utils.getCuartetas().add(new Operation3D(tens, cents, new Literal3D(10), "/"));
+        utils.getCuartetas().add(new IntegerCast3D(tens, tens));
+        utils.getCuartetas().add(new Operation3D(units, tens, new Literal3D(10), "*"));
+        utils.getCuartetas().add(new Operation3D(units, cents, units, "-"));
+        utils.getCuartetas().add(new Operation3D(tens, tens, new Literal3D(48), "+"));
+        utils.getCuartetas().add(new Operation3D(units, units, new Literal3D(48), "+"));
+        MemoryHelper.pushToHeap(utils, tens);
+        MemoryHelper.pushToHeap(utils, units);
     }
 }

@@ -16,8 +16,8 @@ public class Call3D extends Cuarteta {
 
     // saltar a funcion
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.instruction("j " + name);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.instruction("j " + name);
     }
 
     @Override

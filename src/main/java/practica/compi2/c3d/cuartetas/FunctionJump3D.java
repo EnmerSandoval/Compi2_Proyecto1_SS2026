@@ -15,8 +15,8 @@ public class FunctionJump3D extends Cuarteta {
 
     // saltar al metodo
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.instruction("j " + name);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.instruction("j " + name);
     }
 
     @Override

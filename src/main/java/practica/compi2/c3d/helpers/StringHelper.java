@@ -23,65 +23,67 @@ import practica.compi2.semantic.types.TypeKind;
 
 public class StringHelper {
 
-    public static TemporalAccess allocateString(IntermediateCodeUtils u, String text) {
-        TemporalAccess ptr = MemoryHelper.load(u, PointerAccess.HEAP);
+    public static TemporalAccess allocateString(IntermediateCodeUtils utils, String text) {
+        TemporalAccess ptr = MemoryHelper.load(utils, PointerAccess.HEAP);
         for (byte b : text.getBytes(StandardCharsets.UTF_8)) {
-            MemoryHelper.pushToHeap(u, new Literal3D(Byte.toUnsignedInt(b)));
+            MemoryHelper.pushToHeap(utils, new Literal3D(Byte.toUnsignedInt(b)));
         }
-        MemoryHelper.pushToHeap(u, new Literal3D(0));
+        MemoryHelper.pushToHeap(utils, new Literal3D(0));
+        MemoryHelper.checkHeapLimit(utils);
         return ptr;
     }
 
-    public static MemoryAccess toText(IntermediateCodeUtils u, MemoryAccess value, Type type) {
+    public static MemoryAccess toText(IntermediateCodeUtils utils, MemoryAccess value, Type type) {
         if (type.isString()) {
             return value;
         }
         if (type.is(TypeKind.CHAR)) {
-            TemporalAccess ptr = MemoryHelper.load(u, PointerAccess.HEAP);
-            MemoryHelper.pushToHeap(u, value);
-            MemoryHelper.pushToHeap(u, new Literal3D(0));
+            TemporalAccess ptr = MemoryHelper.load(utils, PointerAccess.HEAP);
+            MemoryHelper.pushToHeap(utils, value);
+            MemoryHelper.pushToHeap(utils, new Literal3D(0));
+            MemoryHelper.checkHeapLimit(utils);
             return ptr;
         }
         if (type.isBoolean()) {
-            return booleanToText(u, value);
+            return booleanToText(utils, value);
         }
         if (type.is(TypeKind.FLOAT)) {
-            return CallHelper.call(u, FloatToStringNative.NAME, null, List.of(value));
+            return CallHelper.call(utils, FloatToStringNative.NAME, null, List.of(value));
         }
-        return CallHelper.call(u, IntToStringNative.NAME, null, List.of(value));
+        return CallHelper.call(utils, IntToStringNative.NAME, null, List.of(value));
     }
 
-    public static MemoryAccess fromText(IntermediateCodeUtils u, MemoryAccess text, Type type) {
+    public static MemoryAccess fromText(IntermediateCodeUtils utils, MemoryAccess text, Type type) {
         if (type.isString()) {
             return text;
         }
         if (type.is(TypeKind.CHAR)) {
-            return MemoryHelper.load(u, new HeapAccess(text));
+            return MemoryHelper.load(utils, new HeapAccess(text));
         }
         if (type.is(TypeKind.FLOAT)) {
-            return CallHelper.call(u, StringToFloatNative.NAME, null, List.of(text));
+            return CallHelper.call(utils, StringToFloatNative.NAME, null, List.of(text));
         }
-        return CallHelper.call(u, StringToIntNative.NAME, null, List.of(text));
+        return CallHelper.call(utils, StringToIntNative.NAME, null, List.of(text));
     }
 
-    public static TemporalAccess concat(IntermediateCodeUtils u, MemoryAccess left, MemoryAccess right) {
-        return CallHelper.call(u, ConcatNative.NAME, null, List.of(left, right));
+    public static TemporalAccess concat(IntermediateCodeUtils utils, MemoryAccess left, MemoryAccess right) {
+        return CallHelper.call(utils, ConcatNative.NAME, null, List.of(left, right));
     }
 
-    public static TemporalAccess equalsText(IntermediateCodeUtils u, MemoryAccess left, MemoryAccess right) {
-        return CallHelper.call(u, CompareStringsNative.NAME, null, List.of(left, right));
+    public static TemporalAccess equalsText(IntermediateCodeUtils utils, MemoryAccess left, MemoryAccess right) {
+        return CallHelper.call(utils, CompareStringsNative.NAME, null, List.of(left, right));
     }
 
-    private static TemporalAccess booleanToText(IntermediateCodeUtils u, MemoryAccess value) {
-        TemporalAccess temp = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int trueLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new Conditional3D(value, new Literal3D(1), trueLabel, "=="));
-        u.getCuartetas().add(new Assignation3D(temp, allocateString(u, u.getFalseText())));
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(trueLabel));
-        u.getCuartetas().add(new Assignation3D(temp, allocateString(u, u.getTrueText())));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+    private static TemporalAccess booleanToText(IntermediateCodeUtils utils, MemoryAccess value) {
+        TemporalAccess temp = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int trueLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new Conditional3D(value, new Literal3D(1), trueLabel, "=="));
+        utils.getCuartetas().add(new Assignation3D(temp, allocateString(utils, utils.getFalseText())));
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(trueLabel));
+        utils.getCuartetas().add(new Assignation3D(temp, allocateString(utils, utils.getTrueText())));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
         return temp;
     }
 }

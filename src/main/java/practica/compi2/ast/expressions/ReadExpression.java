@@ -19,7 +19,7 @@ public class ReadExpression extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
+    public Type validate(SemanticContext context) {
         type = Type.STRING;
         return type;
     }
@@ -34,9 +34,9 @@ public class ReadExpression extends Expression {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess text = CallHelper.call(u, ReadLineNative.NAME, null, new ArrayList<>());
-        return StringHelper.fromText(u, text, type);
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess text = CallHelper.call(utils, ReadLineNative.NAME, null, new ArrayList<>());
+        return StringHelper.fromText(utils, text, type);
     }
 
     @Override

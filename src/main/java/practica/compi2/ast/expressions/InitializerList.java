@@ -22,15 +22,15 @@ public class InitializerList extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        sc.error(position, "{", "Una lista {...} solo puede usarse para dar valor a un arreglo o estructura");
+    public Type validate(SemanticContext context) {
+        context.error(position, "{", "Una lista {...} solo puede usarse para dar valor a un arreglo o estructura");
         type = Type.ERROR;
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        return InitializerHelper.build(u, this, type, new ArrayList<>());
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        return InitializerHelper.build(utils, this, type, new ArrayList<>());
     }
 
     @Override

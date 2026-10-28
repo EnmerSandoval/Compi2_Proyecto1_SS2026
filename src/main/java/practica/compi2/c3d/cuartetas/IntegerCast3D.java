@@ -27,11 +27,11 @@ public class IntegerCast3D extends Cuarteta {
 
     // truncar a entero
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        value.loadRiscV(rb, "ft0");
-        rb.instruction("fcvt.l.d t0, ft0, rtz");
-        rb.instruction("fcvt.d.l ft0, t0");
-        assignable.storeRiscV(rb, "ft0");
+    public void toRiscV(RiscVBuilder builder) {
+        value.loadRiscV(builder, "ft0");
+        builder.instruction("fcvt.l.d t0, ft0, rtz");
+        builder.instruction("fcvt.d.l ft0, t0");
+        assignable.storeRiscV(builder, "ft0");
     }
 
     @Override

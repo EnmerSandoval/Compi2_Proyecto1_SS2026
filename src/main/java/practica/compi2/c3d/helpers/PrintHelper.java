@@ -15,32 +15,32 @@ import practica.compi2.semantic.types.TypeKind;
 
 public class PrintHelper {
 
-    public static void print(IntermediateCodeUtils u, MemoryAccess value, Type type) {
+    public static void print(IntermediateCodeUtils utils, MemoryAccess value, Type type) {
         if (type.isString()) {
-            CallHelper.call(u, PrintStringNative.NAME, null, List.of(value));
+            CallHelper.call(utils, PrintStringNative.NAME, null, List.of(value));
         } else if (type.is(TypeKind.FLOAT)) {
-            u.getCuartetas().add(new Print3D(value, "%.2f"));
+            utils.getCuartetas().add(new Print3D(value, "%.2f"));
         } else if (type.is(TypeKind.CHAR)) {
-            u.getCuartetas().add(new Print3D(value, "%c"));
+            utils.getCuartetas().add(new Print3D(value, "%c"));
         } else if (type.isBoolean()) {
-            printBoolean(u, value);
+            printBoolean(utils, value);
         } else {
-            u.getCuartetas().add(new Print3D(value, "%d"));
+            utils.getCuartetas().add(new Print3D(value, "%d"));
         }
     }
 
-    public static void printNewLine(IntermediateCodeUtils u) {
-        u.getCuartetas().add(new PrintText3D("\\n"));
+    public static void printNewLine(IntermediateCodeUtils utils) {
+        utils.getCuartetas().add(new PrintText3D("\\n"));
     }
 
-    private static void printBoolean(IntermediateCodeUtils u, MemoryAccess value) {
-        int trueLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new Conditional3D(value, new Literal3D(1), trueLabel, "=="));
-        u.getCuartetas().add(new PrintText3D(u.getFalseText()));
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(trueLabel));
-        u.getCuartetas().add(new PrintText3D(u.getTrueText()));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+    private static void printBoolean(IntermediateCodeUtils utils, MemoryAccess value) {
+        int trueLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new Conditional3D(value, new Literal3D(1), trueLabel, "=="));
+        utils.getCuartetas().add(new PrintText3D(utils.getFalseText()));
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(trueLabel));
+        utils.getCuartetas().add(new PrintText3D(utils.getTrueText()));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 }

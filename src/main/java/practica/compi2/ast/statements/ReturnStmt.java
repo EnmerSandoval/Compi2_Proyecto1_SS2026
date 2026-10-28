@@ -27,35 +27,35 @@ public class ReturnStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        FunctionSymbol function = sc.getCurrentFunction();
+    public void validate(SemanticContext context) {
+        FunctionSymbol function = context.getCurrentFunction();
         if (function == null) {
-            sc.error(position, "retornar", "Solo se puede retornar dentro de una función o método");
+            context.error(position, "retornar", "Solo se puede retornar dentro de una función o método");
             return;
         }
-        sc.setReturnFound(true);
+        context.setReturnFound(true);
         Type expected = function.getReturnType();
         if (value == null) {
             if (!expected.isVoid()) {
-                sc.error(position, function.getName(), "Se debe retornar un valor de tipo " + expected);
+                context.error(position, function.getName(), "Se debe retornar un valor de tipo " + expected);
             }
             return;
         }
         if (expected.isVoid()) {
-            value.validate(sc);
-            sc.error(position, function.getName(), "'" + function.getName() + "' no retorna ningún valor");
+            value.validate(context);
+            context.error(position, function.getName(), "'" + function.getName() + "' no retorna ningún valor");
             return;
         }
-        new AssignmentChecker(sc).check(value, expected, new ArrayList<>());
+        new AssignmentChecker(context).check(value, expected, new ArrayList<>());
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
         if (value != null) {
-            MemoryAccess access = value.toIntermediateCode(u);
-            u.getCuartetas().add(new Assignation3D(new StackAccess(PointerAccess.STACK), access));
+            MemoryAccess access = value.toIntermediateCode(utils);
+            utils.getCuartetas().add(new Assignation3D(new StackAccess(PointerAccess.STACK), access));
         }
-        u.getCuartetas().add(new Return3D(u.getCurrentFunction().getEndLabel()));
+        utils.getCuartetas().add(new Return3D(utils.getCurrentFunction().getEndLabel()));
     }
 
     @Override

@@ -24,27 +24,27 @@ public class WhileStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        sc.checkCondition(condition, "mientras");
-        sc.enterLoop();
-        body.validate(sc);
-        sc.exitLoop();
+    public void validate(SemanticContext context) {
+        context.checkCondition(condition, "mientras");
+        context.enterLoop();
+        body.validate(context);
+        context.exitLoop();
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        int startLabel = u.getCounter().getAndIncrementLabelCount();
-        int bodyLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new LabelDefinition3D(startLabel));
-        MemoryAccess conditionAccess = condition.toIntermediateCode(u);
-        ConditionHelper.jumpIfTrue(u, conditionAccess, bodyLabel, endLabel);
-        u.getCuartetas().add(new LabelDefinition3D(bodyLabel));
-        u.enterLoop(startLabel, endLabel);
-        body.toIntermediateCode(u);
-        u.exitLoop();
-        u.getCuartetas().add(new Goto3D(startLabel));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        int startLabel = utils.getCounter().getAndIncrementLabelCount();
+        int bodyLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new LabelDefinition3D(startLabel));
+        MemoryAccess conditionAccess = condition.toIntermediateCode(utils);
+        ConditionHelper.jumpIfTrue(utils, conditionAccess, bodyLabel, endLabel);
+        utils.getCuartetas().add(new LabelDefinition3D(bodyLabel));
+        utils.enterLoop(startLabel, endLabel);
+        body.toIntermediateCode(utils);
+        utils.exitLoop();
+        utils.getCuartetas().add(new Goto3D(startLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 
     @Override

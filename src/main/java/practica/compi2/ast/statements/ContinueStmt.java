@@ -18,15 +18,15 @@ public class ContinueStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        if (!sc.isInsideLoop()) {
-            sc.error(position, keyword, "'" + keyword + "' solo puede usarse dentro de un ciclo");
+    public void validate(SemanticContext context) {
+        if (!context.isInsideLoop()) {
+            context.error(position, keyword, "'" + keyword + "' solo puede usarse dentro de un ciclo");
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.getCuartetas().add(new Goto3D(u.getContinueLabel()));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.getCuartetas().add(new Goto3D(utils.getContinueLabel()));
     }
 
     @Override

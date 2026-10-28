@@ -15,13 +15,13 @@ public class NullLiteral extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
+    public Type validate(SemanticContext context) {
         type = Type.NULL;
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
         return new Literal3D(0);
     }
 

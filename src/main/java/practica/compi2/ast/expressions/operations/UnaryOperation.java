@@ -21,11 +21,11 @@ public abstract class UnaryOperation extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        Type operandType = operand.validate(sc);
-        type = resultType(sc.getRules(), operandType);
+    public Type validate(SemanticContext context) {
+        Type operandType = operand.validate(context);
+        type = resultType(context.getRules(), operandType);
         if (type.isError() && !operandType.isError()) {
-            sc.error(position, operator, "No se puede aplicar '" + operator + "' a un valor " + operandType);
+            context.error(position, operator, "No se puede aplicar '" + operator + "' a un valor " + operandType);
         }
         return type;
     }

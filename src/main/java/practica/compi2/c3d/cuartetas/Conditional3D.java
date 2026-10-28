@@ -30,24 +30,24 @@ public class Conditional3D extends Cuarteta {
 
     // comparar y saltar
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        left.loadRiscV(rb, "ft0");
-        right.loadRiscV(rb, "ft1");
+    public void toRiscV(RiscVBuilder builder) {
+        left.loadRiscV(builder, "ft0");
+        right.loadRiscV(builder, "ft1");
         String target = "et" + label;
         switch (operator) {
-            case "==" -> branch(rb, "feq.d t0, ft0, ft1", "bnez", target);
-            case "!=" -> branch(rb, "feq.d t0, ft0, ft1", "beqz", target);
-            case "<" -> branch(rb, "flt.d t0, ft0, ft1", "bnez", target);
-            case "<=" -> branch(rb, "fle.d t0, ft0, ft1", "bnez", target);
-            case ">" -> branch(rb, "flt.d t0, ft1, ft0", "bnez", target);
-            default -> branch(rb, "fle.d t0, ft1, ft0", "bnez", target);
+            case "==" -> branch(builder, "feq.d t0, ft0, ft1", "bnez", target);
+            case "!=" -> branch(builder, "feq.d t0, ft0, ft1", "beqz", target);
+            case "<" -> branch(builder, "flt.d t0, ft0, ft1", "bnez", target);
+            case "<=" -> branch(builder, "fle.d t0, ft0, ft1", "bnez", target);
+            case ">" -> branch(builder, "flt.d t0, ft1, ft0", "bnez", target);
+            default -> branch(builder, "fle.d t0, ft1, ft0", "bnez", target);
         }
     }
 
     // salto condicional
-    private void branch(RiscVBuilder rb, String comparison, String jump, String target) {
-        rb.instruction(comparison);
-        rb.instruction(jump + " t0, " + target);
+    private void branch(RiscVBuilder builder, String comparison, String jump, String target) {
+        builder.instruction(comparison);
+        builder.instruction(jump + " t0, " + target);
     }
 
     @Override

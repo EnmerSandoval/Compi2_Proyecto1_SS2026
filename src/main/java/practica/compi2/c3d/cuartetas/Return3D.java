@@ -15,8 +15,8 @@ public class Return3D extends Cuarteta {
 
     // saltar al final
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.instruction("j et" + endLabel);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.instruction("j et" + endLabel);
     }
 
     @Override

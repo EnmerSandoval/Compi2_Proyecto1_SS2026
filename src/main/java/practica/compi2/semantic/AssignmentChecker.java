@@ -12,10 +12,10 @@ import practica.compi2.semantic.types.Type;
 
 public class AssignmentChecker {
 
-    private final SemanticContext sc;
+    private final SemanticContext context;
 
-    public AssignmentChecker(SemanticContext sc) {
-        this.sc = sc;
+    public AssignmentChecker(SemanticContext context) {
+        this.context = context;
     }
 
     public void check(Expression value, Type expected, List<Expression> sizes) {
@@ -27,12 +27,12 @@ public class AssignmentChecker {
             checkList((InitializerList) value, expected, sizes, level);
             return;
         }
-        Type valueType = value.validate(sc);
+        Type valueType = value.validate(context);
         if (value instanceof ReadExpression read && read.convertTo(expected)) {
             return;
         }
-        if (!sc.getRules().canAssign(expected, valueType)) {
-            sc.error(value.getPosition(), "",
+        if (!context.getRules().canAssign(expected, valueType)) {
+            context.error(value.getPosition(), "",
                     "Se esperaba un valor de tipo " + expected + " pero se encontró " + valueType);
         }
     }
@@ -47,7 +47,7 @@ public class AssignmentChecker {
         } else if (expected.isStruct()) {
             checkStruct(list, expected);
         } else {
-            sc.error(list.getPosition(), "", "No se puede usar una lista {...} para un valor de tipo " + expected);
+            context.error(list.getPosition(), "", "No se puede usar una lista {...} para un valor de tipo " + expected);
         }
     }
 
@@ -55,7 +55,7 @@ public class AssignmentChecker {
         List<Expression> elements = list.getElements();
         int declaredSize = constantSize(sizes, level);
         if (declaredSize >= 0 && elements.size() > declaredSize) {
-            sc.error(list.getPosition(), "", "El arreglo tiene " + declaredSize
+            context.error(list.getPosition(), "", "El arreglo tiene " + declaredSize
                     + " posiciones pero se dieron " + elements.size() + " valores");
         }
         for (Expression element : elements) {
@@ -64,11 +64,11 @@ public class AssignmentChecker {
     }
 
     private void checkStruct(InitializerList list, Type expected) {
-        StructSymbol struct = sc.lookupStruct(expected.getName());
+        StructSymbol struct = context.lookupStruct(expected.getName());
         List<Symbol> fields = struct.getFields();
         List<Expression> elements = list.getElements();
         if (elements.size() != fields.size()) {
-            sc.error(list.getPosition(), expected.getName(), "La estructura " + expected.getName()
+            context.error(list.getPosition(), expected.getName(), "La estructura " + expected.getName()
                     + " tiene " + fields.size() + " campos pero se dieron " + elements.size() + " valores");
         }
         for (int i = 0; i < elements.size() && i < fields.size(); i++) {

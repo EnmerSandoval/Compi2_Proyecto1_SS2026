@@ -30,34 +30,34 @@ public class SwitchCase extends AstNode {
         return value == null;
     }
 
-    public void validate(SemanticContext sc, Type switchType) {
+    public void validate(SemanticContext context, Type switchType) {
         if (value != null) {
-            Type valueType = value.validate(sc);
+            Type valueType = value.validate(context);
             if (!value.isConstant()) {
-                sc.error(value.getPosition(), "", "El valor de un caso debe ser constante");
-            } else if (!sc.getRules().canCompare(switchType, valueType)) {
-                sc.error(value.getPosition(), "", "El caso de tipo " + valueType
+                context.error(value.getPosition(), "", "El valor de un caso debe ser constante");
+            } else if (!context.getRules().canCompare(switchType, valueType)) {
+                context.error(value.getPosition(), "", "El caso de tipo " + valueType
                         + " no se puede comparar con " + switchType);
             }
         }
         for (Statement statement : statements) {
-            statement.validate(sc);
+            statement.validate(context);
         }
     }
 
-    public void jumpIfMatches(IntermediateCodeUtils u, MemoryAccess switchValue, Type switchType, int label) {
-        MemoryAccess caseValue = value.toIntermediateCode(u);
+    public void jumpIfMatches(IntermediateCodeUtils utils, MemoryAccess switchValue, Type switchType, int label) {
+        MemoryAccess caseValue = value.toIntermediateCode(utils);
         if (switchType.isString()) {
-            MemoryAccess equal = StringHelper.equalsText(u, switchValue, caseValue);
-            u.getCuartetas().add(new Conditional3D(equal, new Literal3D(1), label, "=="));
+            MemoryAccess equal = StringHelper.equalsText(utils, switchValue, caseValue);
+            utils.getCuartetas().add(new Conditional3D(equal, new Literal3D(1), label, "=="));
         } else {
-            u.getCuartetas().add(new Conditional3D(switchValue, caseValue, label, "=="));
+            utils.getCuartetas().add(new Conditional3D(switchValue, caseValue, label, "=="));
         }
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
         for (Statement statement : statements) {
-            statement.toIntermediateCode(u);
+            statement.toIntermediateCode(utils);
         }
     }
 

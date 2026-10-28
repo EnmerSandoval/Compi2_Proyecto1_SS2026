@@ -16,18 +16,18 @@ import practica.compi2.errors.ErrorManager;
 public class ProgramLoader {
 
     private final Path projectFolder;
-    private final ErrorManager em;
+    private final ErrorManager errorManager;
     private final YFileParser yParser;
     private final ZetarianoFileParser zetarianoParser;
     private final PigLatinFileParser pigLatinParser;
     private final Set<Path> loadedFiles;
 
-    public ProgramLoader(Path projectFolder, ErrorManager em) {
+    public ProgramLoader(Path projectFolder, ErrorManager errorManager) {
         this.projectFolder = projectFolder;
-        this.em = em;
-        this.yParser = new YFileParser(em);
-        this.zetarianoParser = new ZetarianoFileParser(em);
-        this.pigLatinParser = new PigLatinFileParser(em);
+        this.errorManager = errorManager;
+        this.yParser = new YFileParser(errorManager);
+        this.zetarianoParser = new ZetarianoFileParser(errorManager);
+        this.pigLatinParser = new PigLatinFileParser(errorManager);
         this.loadedFiles = new HashSet<>();
     }
 
@@ -41,7 +41,7 @@ public class ProgramLoader {
         } else if (name.endsWith(".z")) {
             loadZetariano(file, ast);
         } else {
-            em.addSemanticError(name, null, name, "Extensión de archivo no soportada");
+            errorManager.addSemanticError(name, null, name, "Extensión de archivo no soportada");
         }
         return ast;
     }
@@ -65,7 +65,7 @@ public class ProgramLoader {
         String relativePath = importDeclaration.getRelativePath();
         Path file = projectFolder.resolve(relativePath).normalize();
         if (!Files.exists(file)) {
-            em.addSemanticError(mainFile, importDeclaration.getPosition(), relativePath,
+            errorManager.addSemanticError(mainFile, importDeclaration.getPosition(), relativePath,
                     "No se encontró el archivo importado");
             return;
         }
@@ -74,7 +74,7 @@ public class ProgramLoader {
         } else if (importDeclaration.getExtension().equals("z")) {
             loadZetariano(file, ast);
         } else {
-            em.addSemanticError(mainFile, importDeclaration.getPosition(), relativePath,
+            errorManager.addSemanticError(mainFile, importDeclaration.getPosition(), relativePath,
                     "Solo se pueden importar archivos .y o .z");
         }
     }
@@ -117,7 +117,7 @@ public class ProgramLoader {
                     .findFirst()
                     .ifPresent(path -> loadZetariano(path.normalize(), ast));
         } catch (IOException e) {
-            em.addSemanticError(fileName(file), null, parentFile, "No se pudo buscar la clase padre");
+            errorManager.addSemanticError(fileName(file), null, parentFile, "No se pudo buscar la clase padre");
         }
     }
 
@@ -133,7 +133,7 @@ public class ProgramLoader {
             }
             return code;
         } catch (IOException e) {
-            em.addSemanticError(fileName(file), null, "", "No se pudo leer el archivo");
+            errorManager.addSemanticError(fileName(file), null, "", "No se pudo leer el archivo");
             return null;
         }
     }

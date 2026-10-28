@@ -9,23 +9,23 @@ import practica.compi2.semantic.types.TypeTable;
 public class IntermediateCodeGenerator {
 
     public IntermediateCodeUtils generate(Ast ast, TypeTable typeTable) {
-        IntermediateCodeUtils u = new IntermediateCodeUtils();
-        u.setTypeTable(typeTable);
+        IntermediateCodeUtils utils = new IntermediateCodeUtils();
+        utils.setTypeTable(typeTable);
         for (YProgram program : ast.getYPrograms()) {
-            program.registerStructs(u);
+            program.registerStructs(utils);
         }
         for (ZetarianoProgram program : ast.getClasses()) {
-            u.registerClass(program.getClassDefinition().getSymbol());
+            utils.registerClass(program.getClassDefinition().getSymbol());
         }
-        NativeLibrary.generate(u);
+        NativeLibrary.generate(utils);
         for (YProgram program : ast.getYPrograms()) {
-            program.toIntermediateCode(u);
+            program.toIntermediateCode(utils);
         }
         for (ZetarianoProgram program : ast.getClasses()) {
-            program.toIntermediateCode(u);
+            program.toIntermediateCode(utils);
         }
-        ast.getMain().toIntermediateCode(u);
-        u.linkReturns();
-        return u;
+        ast.getMain().toIntermediateCode(utils);
+        utils.linkReturns();
+        return utils;
     }
 }

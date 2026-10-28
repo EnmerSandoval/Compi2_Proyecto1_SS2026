@@ -9,12 +9,12 @@ import org.antlr.v4.runtime.Token;
 
 public class SyntaxErrorListener extends BaseErrorListener {
 
-    private final ErrorManager em;
+    private final ErrorManager errorManager;
     private final String fileName;
     private boolean foundErrors;
 
-    public SyntaxErrorListener(ErrorManager em, String fileName) {
-        this.em = em;
+    public SyntaxErrorListener(ErrorManager errorManager, String fileName) {
+        this.errorManager = errorManager;
         this.fileName = fileName;
         this.foundErrors = false;
     }
@@ -41,7 +41,7 @@ public class SyntaxErrorListener extends BaseErrorListener {
                 errorColumn = previous.getCharPositionInLine() + previous.getText().length() + 1;
             }
         }
-        em.addError(new CompilationError(type, lexeme, fileName, errorLine, errorColumn, description));
+        errorManager.addError(new CompilationError(type, lexeme, fileName, errorLine, errorColumn, description));
         foundErrors = true;
     }
 

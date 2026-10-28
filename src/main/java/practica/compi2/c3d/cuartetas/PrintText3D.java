@@ -15,9 +15,9 @@ public class PrintText3D extends Cuarteta {
 
     // imprimir texto
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.instruction("la a0, " + rb.stringLabel(text));
-        rb.syscall(4);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.instruction("la a0, " + builder.stringLabel(text));
+        builder.syscall(4);
     }
 
     @Override

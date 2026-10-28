@@ -16,52 +16,53 @@ import practica.compi2.semantic.symbols.StructSymbol;
 
 public class ArrayHelper {
 
-    public static TemporalAccess allocate(IntermediateCodeUtils u, List<MemoryAccess> dimensions) {
-        TemporalAccess total = totalSize(u, dimensions);
-        TemporalAccess ptr = MemoryHelper.allocate(u, new Literal3D(dimensions.size()));
+    public static TemporalAccess allocate(IntermediateCodeUtils utils, List<MemoryAccess> dimensions) {
+        TemporalAccess total = totalSize(utils, dimensions);
+        TemporalAccess ptr = MemoryHelper.allocate(utils, new Literal3D(dimensions.size()));
         for (int i = 0; i < dimensions.size(); i++) {
-            HeapAccess header = MemoryHelper.heapSlot(u, ptr, new Literal3D(i));
-            u.getCuartetas().add(new Assignation3D(header, dimensions.get(i)));
+            HeapAccess header = MemoryHelper.heapSlot(utils, ptr, new Literal3D(i));
+            utils.getCuartetas().add(new Assignation3D(header, dimensions.get(i)));
         }
-        u.getCuartetas().add(new Operation3D(PointerAccess.HEAP, PointerAccess.HEAP, total, "+"));
+        utils.getCuartetas().add(new Operation3D(PointerAccess.HEAP, PointerAccess.HEAP, total, "+"));
+        MemoryHelper.checkHeapLimit(utils);
         return ptr;
     }
 
-    public static HeapAccess elementAddress(IntermediateCodeUtils u, MemoryAccess ptr,
+    public static HeapAccess elementAddress(IntermediateCodeUtils utils, MemoryAccess ptr,
             List<MemoryAccess> indexes, int dimensionCount) {
-        TemporalAccess offset = MemoryHelper.load(u, indexes.get(0));
+        TemporalAccess offset = MemoryHelper.load(utils, indexes.get(0));
         for (int i = 1; i < indexes.size(); i++) {
-            TemporalAccess size = MemoryHelper.load(u, MemoryHelper.heapSlot(u, ptr, new Literal3D(i)));
-            u.getCuartetas().add(new Operation3D(offset, offset, size, "*"));
-            u.getCuartetas().add(new Operation3D(offset, offset, indexes.get(i), "+"));
+            TemporalAccess size = MemoryHelper.load(utils, MemoryHelper.heapSlot(utils, ptr, new Literal3D(i)));
+            utils.getCuartetas().add(new Operation3D(offset, offset, size, "*"));
+            utils.getCuartetas().add(new Operation3D(offset, offset, indexes.get(i), "+"));
         }
-        u.getCuartetas().add(new Operation3D(offset, offset, new Literal3D(dimensionCount), "+"));
-        return MemoryHelper.heapSlot(u, ptr, offset);
+        utils.getCuartetas().add(new Operation3D(offset, offset, new Literal3D(dimensionCount), "+"));
+        return MemoryHelper.heapSlot(utils, ptr, offset);
     }
 
-    public static void fillWithStructs(IntermediateCodeUtils u, TemporalAccess ptr,
+    public static void fillWithStructs(IntermediateCodeUtils utils, TemporalAccess ptr,
             List<MemoryAccess> dimensions, StructSymbol struct) {
-        TemporalAccess total = totalSize(u, dimensions);
-        TemporalAccess data = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        TemporalAccess index = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int loopLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new Operation3D(data, ptr, new Literal3D(dimensions.size()), "+"));
-        u.getCuartetas().add(new Assignation3D(index, new Literal3D(0)));
-        u.getCuartetas().add(new LabelDefinition3D(loopLabel));
-        u.getCuartetas().add(new Conditional3D(index, total, endLabel, ">="));
-        TemporalAccess element = StructHelper.allocate(u, struct);
-        u.getCuartetas().add(new Assignation3D(MemoryHelper.heapSlot(u, data, index), element));
-        u.getCuartetas().add(new Operation3D(index, index, new Literal3D(1), "+"));
-        u.getCuartetas().add(new Goto3D(loopLabel));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+        TemporalAccess total = totalSize(utils, dimensions);
+        TemporalAccess data = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        TemporalAccess index = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int loopLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new Operation3D(data, ptr, new Literal3D(dimensions.size()), "+"));
+        utils.getCuartetas().add(new Assignation3D(index, new Literal3D(0)));
+        utils.getCuartetas().add(new LabelDefinition3D(loopLabel));
+        utils.getCuartetas().add(new Conditional3D(index, total, endLabel, ">="));
+        TemporalAccess element = StructHelper.allocate(utils, struct);
+        utils.getCuartetas().add(new Assignation3D(MemoryHelper.heapSlot(utils, data, index), element));
+        utils.getCuartetas().add(new Operation3D(index, index, new Literal3D(1), "+"));
+        utils.getCuartetas().add(new Goto3D(loopLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 
-    private static TemporalAccess totalSize(IntermediateCodeUtils u, List<MemoryAccess> dimensions) {
-        TemporalAccess total = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        u.getCuartetas().add(new Assignation3D(total, new Literal3D(1)));
+    private static TemporalAccess totalSize(IntermediateCodeUtils utils, List<MemoryAccess> dimensions) {
+        TemporalAccess total = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        utils.getCuartetas().add(new Assignation3D(total, new Literal3D(1)));
         for (MemoryAccess dimension : dimensions) {
-            u.getCuartetas().add(new Operation3D(total, total, dimension, "*"));
+            utils.getCuartetas().add(new Operation3D(total, total, dimension, "*"));
         }
         return total;
     }

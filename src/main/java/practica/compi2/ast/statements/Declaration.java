@@ -42,63 +42,63 @@ public class Declaration extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        checkSizes(sc);
+    public void validate(SemanticContext context) {
+        checkSizes(context);
         Type declaredType;
         if (type == null) {
-            declaredType = inferType(sc);
+            declaredType = inferType(context);
         } else {
-            declaredType = sc.resolveType(type);
+            declaredType = context.resolveType(type);
             if (value != null) {
-                new AssignmentChecker(sc).check(value, declaredType, sizes);
+                new AssignmentChecker(context).check(value, declaredType, sizes);
             }
         }
-        symbol = sc.declareVariable(id, declaredType, position);
+        symbol = context.declareVariable(id, declaredType, position);
     }
 
-    private Type inferType(SemanticContext sc) {
+    private Type inferType(SemanticContext context) {
         if (value == null) {
-            sc.error(position, id, "La variable '" + id + "' necesita un tipo o un valor inicial");
+            context.error(position, id, "La variable '" + id + "' necesita un tipo o un valor inicial");
             return Type.ERROR;
         }
         if (value instanceof InitializerList) {
-            sc.error(position, id, "No se puede deducir el tipo de '" + id + "' a partir de una lista {...}");
+            context.error(position, id, "No se puede deducir el tipo de '" + id + "' a partir de una lista {...}");
             return Type.ERROR;
         }
-        Type inferred = value.validate(sc);
+        Type inferred = value.validate(context);
         if (inferred.isVoid() || inferred.isNull()) {
-            sc.error(position, id, "No se puede deducir el tipo de '" + id + "'");
+            context.error(position, id, "No se puede deducir el tipo de '" + id + "'");
             return Type.ERROR;
         }
         return inferred;
     }
 
-    private void checkSizes(SemanticContext sc) {
+    private void checkSizes(SemanticContext context) {
         for (Expression size : sizes) {
-            Type sizeType = size.validate(sc);
+            Type sizeType = size.validate(context);
             if (!sizeType.isError() && !sizeType.is(TypeKind.INTEGER)) {
-                sc.error(size.getPosition(), id, "El tamaño del arreglo '" + id + "' debe ser entero");
+                context.error(size.getPosition(), id, "El tamaño del arreglo '" + id + "' debe ser entero");
             }
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess initialValue = createInitialValue(u);
-        u.getCuartetas().add(new Assignation3D(MemoryHelper.stackSlot(u, symbol.getOffset()), initialValue));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess initialValue = createInitialValue(utils);
+        utils.getCuartetas().add(new Assignation3D(MemoryHelper.stackSlot(utils, symbol.getOffset()), initialValue));
     }
 
-    private MemoryAccess createInitialValue(IntermediateCodeUtils u) {
+    private MemoryAccess createInitialValue(IntermediateCodeUtils utils) {
         if (value instanceof InitializerList) {
-            return InitializerHelper.build(u, (InitializerList) value, symbol.getType(), sizes);
+            return InitializerHelper.build(utils, (InitializerList) value, symbol.getType(), sizes);
         }
         if (value != null && isStructValue(symbol.getType())) {
-            return CopyHelper.cloneStruct(u, value.toIntermediateCode(u), u.getStruct(symbol.getType().getName()));
+            return CopyHelper.cloneStruct(utils, value.toIntermediateCode(utils), utils.getStruct(symbol.getType().getName()));
         }
         if (value != null) {
-            return value.toIntermediateCode(u);
+            return value.toIntermediateCode(utils);
         }
-        return DefaultValueHelper.create(u, symbol.getType(), sizes);
+        return DefaultValueHelper.create(utils, symbol.getType(), sizes);
     }
 
     private boolean isStructValue(Type type) {

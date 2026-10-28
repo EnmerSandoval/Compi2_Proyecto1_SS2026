@@ -26,24 +26,24 @@ public class NewArray extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
+    public Type validate(SemanticContext context) {
         for (Expression size : sizes) {
-            Type sizeType = size.validate(sc);
+            Type sizeType = size.validate(context);
             if (!sizeType.isError() && !sizeType.is(TypeKind.INTEGER)) {
-                sc.error(size.getPosition(), "", "El tamaño de un arreglo debe ser entero y es " + sizeType);
+                context.error(size.getPosition(), "", "El tamaño de un arreglo debe ser entero y es " + sizeType);
             }
         }
-        type = sc.resolveType(baseType);
+        type = context.resolveType(baseType);
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
         List<MemoryAccess> dimensions = new ArrayList<>();
         for (Expression size : sizes) {
-            dimensions.add(size.toIntermediateCode(u));
+            dimensions.add(size.toIntermediateCode(utils));
         }
-        return ArrayHelper.allocate(u, dimensions);
+        return ArrayHelper.allocate(utils, dimensions);
     }
 
     @Override

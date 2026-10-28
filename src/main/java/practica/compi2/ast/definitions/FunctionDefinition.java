@@ -33,50 +33,50 @@ public class FunctionDefinition extends AstNode {
         this.body = body;
     }
 
-    public void register(SemanticContext sc) {
-        symbol = createSymbol(sc, null, SymbolKind.FUNCTION);
-        if (!sc.getGlobals().addFunction(symbol)) {
-            sc.error(position, name, "La función '" + name + "' ya fue declarada");
+    public void register(SemanticContext context) {
+        symbol = createSymbol(context, null, SymbolKind.FUNCTION);
+        if (!context.getGlobals().addFunction(symbol)) {
+            context.error(position, name, "La función '" + name + "' ya fue declarada");
         }
     }
 
-    public void validate(SemanticContext sc) {
-        validateBody(sc, new Frame(name, 1));
+    public void validate(SemanticContext context) {
+        validateBody(context, new Frame(name, 1));
     }
 
-    protected FunctionSymbol createSymbol(SemanticContext sc, String owner, SymbolKind kind) {
+    protected FunctionSymbol createSymbol(SemanticContext context, String owner, SymbolKind kind) {
         Type resolvedReturn = Type.VOID;
         if (returnType != null) {
-            resolvedReturn = sc.resolveType(returnType);
+            resolvedReturn = context.resolveType(returnType);
         }
         FunctionSymbol function = new FunctionSymbol(name, resolvedReturn, owner);
         for (Parameter parameter : parameters) {
-            function.addParameter(parameter.createSymbol(sc));
+            function.addParameter(parameter.createSymbol(context));
         }
         Symbol row = new Symbol(function.getSignature(), resolvedReturn, kind, -1);
         row.setScope(owner);
-        sc.report(row);
+        context.report(row);
         return function;
     }
 
-    protected void validateBody(SemanticContext sc, Frame frame) {
-        sc.enterFunction(symbol, frame);
+    protected void validateBody(SemanticContext context, Frame frame) {
+        context.enterFunction(symbol, frame);
         for (int i = 0; i < parameters.size(); i++) {
-            sc.declareParameter(symbol.getParameters().get(i), parameters.get(i).getPosition());
+            context.declareParameter(symbol.getParameters().get(i), parameters.get(i).getPosition());
         }
-        body.validateStatements(sc);
+        body.validateStatements(context);
         Type expected = symbol.getReturnType();
-        if (!expected.isVoid() && !expected.isError() && !sc.isReturnFound()) {
-            sc.error(position, name, "'" + name + "' debe retornar un valor de tipo " + expected);
+        if (!expected.isVoid() && !expected.isError() && !context.isReturnFound()) {
+            context.error(position, name, "'" + name + "' debe retornar un valor de tipo " + expected);
         }
         symbol.setFrameSize(frame.getSize());
-        sc.exitFunction();
+        context.exitFunction();
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.startFunction(symbol.getCName(), symbol.getFrameSize());
-        body.toIntermediateCode(u);
-        u.endFunction();
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.startFunction(symbol.getCName(), symbol.getFrameSize());
+        body.toIntermediateCode(utils);
+        utils.endFunction();
     }
 
     @Override

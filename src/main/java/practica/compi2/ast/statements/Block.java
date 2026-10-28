@@ -25,22 +25,22 @@ public class Block extends Statement implements CanAddStmt {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        sc.enterScope();
-        validateStatements(sc);
-        sc.exitScope();
+    public void validate(SemanticContext context) {
+        context.enterScope();
+        validateStatements(context);
+        context.exitScope();
     }
 
-    public void validateStatements(SemanticContext sc) {
+    public void validateStatements(SemanticContext context) {
         for (Statement statement : statements) {
-            statement.validate(sc);
+            statement.validate(context);
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
         for (Statement statement : statements) {
-            statement.toIntermediateCode(u);
+            statement.toIntermediateCode(utils);
         }
     }
 

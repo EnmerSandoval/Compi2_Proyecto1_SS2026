@@ -50,29 +50,29 @@ public class ClassDefinition extends AstNode {
         methods.add(method);
     }
 
-    public void registerName(SemanticContext sc, String expectedName) {
+    public void registerName(SemanticContext context, String expectedName) {
         if (!name.equals(expectedName)) {
-            sc.error(position, name, "La clase '" + name + "' debe estar en un archivo llamado " + name + ".z");
+            context.error(position, name, "La clase '" + name + "' debe estar en un archivo llamado " + name + ".z");
         }
         symbol = new ClassSymbol(name, access);
-        if (!sc.getGlobals().addClass(symbol)) {
-            sc.error(position, name, "Ya existe una estructura o clase llamada '" + name + "'");
+        if (!context.getGlobals().addClass(symbol)) {
+            context.error(position, name, "Ya existe una estructura o clase llamada '" + name + "'");
         }
-        sc.getTypeTable().registerClass(symbol);
-        sc.report(new Symbol(name, new Type(TypeKind.CLASS, name, 0), SymbolKind.CLASS, -1));
+        context.getTypeTable().registerClass(symbol);
+        context.report(new Symbol(name, new Type(TypeKind.CLASS, name, 0), SymbolKind.CLASS, -1));
     }
 
-    public void linkParent(SemanticContext sc) {
+    public void linkParent(SemanticContext context) {
         if (parentName == null) {
             return;
         }
-        ClassSymbol parent = sc.getGlobals().getClass(parentName);
+        ClassSymbol parent = context.getGlobals().getClass(parentName);
         if (parent == null) {
-            sc.error(position, parentName, "La clase padre '" + parentName + "' no existe");
+            context.error(position, parentName, "La clase padre '" + parentName + "' no existe");
             return;
         }
         if (parent.isSubclassOf(symbol)) {
-            sc.error(position, parentName, "Herencia cíclica: '" + parentName + "' ya hereda de '" + name + "'");
+            context.error(position, parentName, "Herencia cíclica: '" + parentName + "' ya hereda de '" + name + "'");
             return;
         }
         symbol.setParent(parent);
@@ -87,53 +87,53 @@ public class ClassDefinition extends AstNode {
         return depth;
     }
 
-    public void registerMembers(SemanticContext sc) {
-        sc.setCurrentClass(symbol);
+    public void registerMembers(SemanticContext context) {
+        context.setCurrentClass(symbol);
         boolean parentNeedsArguments = symbol.getParent() != null && !symbol.getParent().hasNoArgConstructor();
         if (constructors.isEmpty() && parentNeedsArguments) {
-            sc.error(position, name, "La clase " + symbol.getParent().getName() + " no tiene un constructor sin parámetros, "
+            context.error(position, name, "La clase " + symbol.getParent().getName() + " no tiene un constructor sin parámetros, "
                     + name + " debe declarar un constructor que llame a super(...)");
         }
         for (AttributeDefinition attribute : attributes) {
-            attribute.registerIn(symbol, sc);
+            attribute.registerIn(symbol, context);
         }
         for (ConstructorDefinition constructor : constructors) {
-            constructor.registerIn(symbol, sc);
+            constructor.registerIn(symbol, context);
         }
         for (MethodDefinition method : methods) {
-            method.registerIn(symbol, sc);
+            method.registerIn(symbol, context);
         }
-        sc.setCurrentClass(null);
+        context.setCurrentClass(null);
     }
 
-    public void validate(SemanticContext sc) {
-        sc.setCurrentClass(symbol);
+    public void validate(SemanticContext context) {
+        context.setCurrentClass(symbol);
         for (AttributeDefinition attribute : attributes) {
-            attribute.validate(sc);
+            attribute.validate(context);
         }
         for (ConstructorDefinition constructor : constructors) {
-            constructor.validate(sc);
+            constructor.validate(context);
         }
         for (MethodDefinition method : methods) {
-            method.validate(sc);
+            method.validate(context);
         }
-        sc.setCurrentClass(null);
+        context.setCurrentClass(null);
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.startFunction(symbol.getInitName(), 2);
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.startFunction(symbol.getInitName(), 2);
         if (symbol.getParent() != null) {
-            CallHelper.call(u, symbol.getParent().getInitName(), MemoryHelper.thisPointer(u), new ArrayList<>());
+            CallHelper.call(utils, symbol.getParent().getInitName(), MemoryHelper.thisPointer(utils), new ArrayList<>());
         }
         for (AttributeDefinition attribute : attributes) {
-            attribute.toIntermediateCode(u);
+            attribute.toIntermediateCode(utils);
         }
-        u.endFunction();
+        utils.endFunction();
         for (ConstructorDefinition constructor : constructors) {
-            constructor.toIntermediateCode(u);
+            constructor.toIntermediateCode(utils);
         }
         for (MethodDefinition method : methods) {
-            method.toIntermediateCode(u);
+            method.toIntermediateCode(utils);
         }
     }
 

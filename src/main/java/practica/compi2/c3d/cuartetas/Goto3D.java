@@ -15,8 +15,8 @@ public class Goto3D extends Cuarteta {
 
     // salto directo
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.instruction("j et" + label);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.instruction("j et" + label);
     }
 
     @Override

@@ -16,37 +16,37 @@ public class Compiler {
 
     public CompilationResult compile(Path mainFile) {
         CompilationResult compilation = new CompilationResult();
-        ErrorManager em = new ErrorManager();
-        compilation.setErrors(em.getErrors());
+        ErrorManager errorManager = new ErrorManager();
+        compilation.setErrors(errorManager.getErrors());
         try {
-            run(mainFile, compilation, em);
+            run(mainFile, compilation, errorManager);
         } catch (StackOverflowError e) {
             compilation.setCode(null);
-            em.addError(new CompilationError(ErrorType.SINTACTICO, "", mainFile.getFileName().toString(), 0, 0,
+            errorManager.addError(new CompilationError(ErrorType.SINTACTICO, "", mainFile.getFileName().toString(), 0, 0,
                     "El programa tiene demasiados niveles de anidamiento para poder compilarse"));
         }
         return compilation;
     }
 
-    private void run(Path mainFile, CompilationResult compilation, ErrorManager em) {
-        ProgramLoader loader = new ProgramLoader(mainFile.getParent(), em);
+    private void run(Path mainFile, CompilationResult compilation, ErrorManager errorManager) {
+        ProgramLoader loader = new ProgramLoader(mainFile.getParent(), errorManager);
         Ast ast = loader.load(mainFile);
         compilation.setAst(ast);
-        if (em.hasSyntaxErrors()) {
+        if (errorManager.hasSyntaxErrors()) {
             return;
         }
 
-        SemanticAnalyzer analyzer = new SemanticAnalyzer(em);
+        SemanticAnalyzer analyzer = new SemanticAnalyzer(errorManager);
         analyzer.analyze(ast);
         compilation.setSymbols(analyzer.getSymbols());
         compilation.setTypeTable(analyzer.getTypeTable());
-        if (em.hasErrors() || ast.getMain() == null) {
+        if (errorManager.hasErrors() || ast.getMain() == null) {
             return;
         }
 
-        IntermediateCodeUtils u = new IntermediateCodeGenerator().generate(ast, analyzer.getTypeTable());
-        compilation.setCuartetas(u.getCuartetas());
-        compilation.setCode(new CCodeGenerator().generateCode(u));
-        compilation.setRiscVCode(new RiscVGenerator().generateCode(u));
+        IntermediateCodeUtils utils = new IntermediateCodeGenerator().generate(ast, analyzer.getTypeTable());
+        compilation.setCuartetas(utils.getCuartetas());
+        compilation.setCode(new CCodeGenerator().generateCode(utils));
+        compilation.setRiscVCode(new RiscVGenerator().generateCode(utils));
     }
 }

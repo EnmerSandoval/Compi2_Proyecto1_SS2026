@@ -11,7 +11,7 @@ public abstract class Statement extends AstNode {
         super(position);
     }
 
-    public abstract void validate(SemanticContext sc);
+    public abstract void validate(SemanticContext context);
 
-    public abstract void toIntermediateCode(IntermediateCodeUtils u);
+    public abstract void toIntermediateCode(IntermediateCodeUtils utils);
 }

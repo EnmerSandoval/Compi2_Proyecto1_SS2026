@@ -27,57 +27,57 @@ public class MethodDefinition extends FunctionDefinition {
         this.access = access;
     }
 
-    public void registerIn(ClassSymbol owner, SemanticContext sc) {
-        symbol = createSymbol(sc, owner.getName(), SymbolKind.METHOD);
+    public void registerIn(ClassSymbol owner, SemanticContext context) {
+        symbol = createSymbol(context, owner.getName(), SymbolKind.METHOD);
         symbol.setAccess(access);
         symbol.setOwnerClass(owner);
         if (!owner.addMethod(symbol)) {
-            sc.error(position, name, "El método " + symbol.getSignature()
+            context.error(position, name, "El método " + symbol.getSignature()
                     + " ya existe en la clase " + owner.getName());
         }
-        checkOverride(owner, sc);
+        checkOverride(owner, context);
     }
 
-    private void checkOverride(ClassSymbol owner, SemanticContext sc) {
+    private void checkOverride(ClassSymbol owner, SemanticContext context) {
         String method = "El método " + symbol.getSignature();
-        FunctionSymbol inherited = findInherited(owner, sc);
+        FunctionSymbol inherited = findInherited(owner, context);
         if (inherited == null) {
             if (override) {
-                sc.error(position, name, method + " tiene @Override pero no sobrescribe ningún método de una clase padre");
+                context.error(position, name, method + " tiene @Override pero no sobrescribe ningún método de una clase padre");
             }
             return;
         }
         String parent = inherited.getOwner();
         if (!override) {
-            sc.error(position, name, method + " sobrescribe al de la clase " + parent + " y debe llevar la anotación @Override");
+            context.error(position, name, method + " sobrescribe al de la clase " + parent + " y debe llevar la anotación @Override");
         }
-        if (!isCovariant(inherited.getReturnType(), symbol.getReturnType(), sc)) {
-            sc.error(position, name, method + " debe retornar " + inherited.getReturnType()
+        if (!isCovariant(inherited.getReturnType(), symbol.getReturnType(), context)) {
+            context.error(position, name, method + " debe retornar " + inherited.getReturnType()
                     + " (o una subclase) como en la clase " + parent);
         }
         if (visibility(access) < visibility(inherited.getAccess())) {
-            sc.error(position, name, method + " no puede ser menos visible que en la clase " + parent);
+            context.error(position, name, method + " no puede ser menos visible que en la clase " + parent);
         }
     }
 
-    private FunctionSymbol findInherited(ClassSymbol owner, SemanticContext sc) {
+    private FunctionSymbol findInherited(ClassSymbol owner, SemanticContext context) {
         if (owner.getParent() == null) {
             return null;
         }
         FunctionSymbol inherited = owner.getParent().findImplementation(symbol);
-        if (inherited == symbol || !sc.canAccess(inherited.getAccess(), inherited.getOwnerClass())) {
+        if (inherited == symbol || !context.canAccess(inherited.getAccess(), inherited.getOwnerClass())) {
             return null;
         }
         return inherited;
     }
 
-    private boolean isCovariant(Type parentReturn, Type childReturn, SemanticContext sc) {
+    private boolean isCovariant(Type parentReturn, Type childReturn, SemanticContext context) {
         if (parentReturn.sameAs(childReturn)) {
             return true;
         }
         return parentReturn.isClass() && childReturn.isClass()
                 && parentReturn.getDimensions() == 0 && childReturn.getDimensions() == 0
-                && sc.getGlobals().isSubclass(childReturn.getName(), parentReturn.getName());
+                && context.getGlobals().isSubclass(childReturn.getName(), parentReturn.getName());
     }
 
     private int visibility(AccessModifier modifier) {
@@ -89,8 +89,8 @@ public class MethodDefinition extends FunctionDefinition {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        validateBody(sc, new Frame(symbol.getOwner() + "." + name, 2));
+    public void validate(SemanticContext context) {
+        validateBody(context, new Frame(symbol.getOwner() + "." + name, 2));
     }
 
     @Override

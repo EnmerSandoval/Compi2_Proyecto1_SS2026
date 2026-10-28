@@ -27,9 +27,9 @@ public class Assignation3D extends Cuarteta {
 
     // copiar valor
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        value.loadRiscV(rb, "ft0");
-        assignable.storeRiscV(rb, "ft0");
+    public void toRiscV(RiscVBuilder builder) {
+        value.loadRiscV(builder, "ft0");
+        assignable.storeRiscV(builder, "ft0");
     }
 
     @Override

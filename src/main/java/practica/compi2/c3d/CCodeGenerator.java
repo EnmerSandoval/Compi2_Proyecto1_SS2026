@@ -10,23 +10,24 @@ import practica.compi2.c3d.cuartetas.Cuarteta;
 import practica.compi2.c3d.cuartetas.FunctionEnd3D;
 import practica.compi2.c3d.cuartetas.FunctionStart3D;
 import practica.compi2.c3d.cuartetas.LabelDefinition3D;
+import practica.compi2.riscv.RiscVGenerator;
 
 public class CCodeGenerator {
 
-    public String generateCode(IntermediateCodeUtils u) {
+    public String generateCode(IntermediateCodeUtils utils) {
         StringBuilder sb = new StringBuilder();
         sb.append("""
                 #include <stdio.h>
 
-                double stack[1000000];
-                double heap[10000000];
+                double stack[%d];
+                double heap[%d];
                 int P = 0;
                 int H = 1;
 
-                """);
-        declareTemporals(sb, u.getCounter().getTemporalCount());
+                """.formatted(RiscVGenerator.STACK_SIZE, RiscVGenerator.HEAP_SIZE));
+        declareTemporals(sb, utils.getCounter().getTemporalCount());
         sb.append("\nint main() {\n");
-        appendCode(sb, u.getMainFirst());
+        appendCode(sb, utils.getMainFirst());
         sb.append("}\n");
         return sb.toString();
     }

@@ -14,14 +14,14 @@ public class PointerAccess extends MemoryAccess {
 
     // leer P o H
     @Override
-    public void loadRiscV(RiscVBuilder rb, String floatRegister) {
-        rb.instruction("fmv.d " + floatRegister + ", " + register);
+    public void loadRiscV(RiscVBuilder builder, String floatRegister) {
+        builder.instruction("fmv.d " + floatRegister + ", " + register);
     }
 
     // cambiar P o H
     @Override
-    public void storeRiscV(RiscVBuilder rb, String floatRegister) {
-        rb.instruction("fmv.d " + register + ", " + floatRegister);
+    public void storeRiscV(RiscVBuilder builder, String floatRegister) {
+        builder.instruction("fmv.d " + register + ", " + floatRegister);
     }
 
     @Override

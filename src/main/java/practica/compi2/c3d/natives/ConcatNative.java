@@ -17,28 +17,29 @@ public class ConcatNative extends NativeFunction {
     public static final String NAME = "nativeConcatenar";
 
     @Override
-    public void generate(IntermediateCodeUtils u) {
-        u.startFunction(NAME, 3);
-        TemporalAccess first = parameter(u, 1);
-        TemporalAccess second = parameter(u, 2);
-        TemporalAccess temp = MemoryHelper.load(u, PointerAccess.HEAP);
-        copyCharacters(u, first);
-        copyCharacters(u, second);
-        MemoryHelper.pushToHeap(u, new Literal3D(0));
-        returnValue(u, temp);
-        u.endFunction();
+    public void generate(IntermediateCodeUtils utils) {
+        utils.startFunction(NAME, 3);
+        TemporalAccess first = parameter(utils, 1);
+        TemporalAccess second = parameter(utils, 2);
+        TemporalAccess temp = MemoryHelper.load(utils, PointerAccess.HEAP);
+        copyCharacters(utils, first);
+        copyCharacters(utils, second);
+        MemoryHelper.pushToHeap(utils, new Literal3D(0));
+        returnValue(utils, temp);
+        utils.endFunction();
     }
 
-    private void copyCharacters(IntermediateCodeUtils u, TemporalAccess ptr) {
-        TemporalAccess character = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        int loopLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new LabelDefinition3D(loopLabel));
-        u.getCuartetas().add(new Assignation3D(character, new HeapAccess(ptr)));
-        u.getCuartetas().add(new Conditional3D(character, new Literal3D(0), endLabel, "=="));
-        MemoryHelper.pushToHeap(u, character);
-        u.getCuartetas().add(new Operation3D(ptr, ptr, new Literal3D(1), "+"));
-        u.getCuartetas().add(new Goto3D(loopLabel));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+    private void copyCharacters(IntermediateCodeUtils utils, TemporalAccess ptr) {
+        TemporalAccess character = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        int loopLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new LabelDefinition3D(loopLabel));
+        utils.getCuartetas().add(new Assignation3D(character, new HeapAccess(ptr)));
+        utils.getCuartetas().add(new Conditional3D(character, new Literal3D(0), endLabel, "=="));
+        MemoryHelper.pushToHeap(utils, character);
+        MemoryHelper.checkHeapLimit(utils);
+        utils.getCuartetas().add(new Operation3D(ptr, ptr, new Literal3D(1), "+"));
+        utils.getCuartetas().add(new Goto3D(loopLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 }

@@ -1,5 +1,6 @@
 package practica.compi2.ast.statements;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import practica.compi2.ast.AstPrinter;
@@ -24,23 +25,26 @@ public class PrintStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
+    public void validate(SemanticContext context) {
         for (Expression value : values) {
-            Type valueType = value.validate(sc);
+            Type valueType = value.validate(context);
             if (!valueType.isError() && !valueType.isPrimitive()) {
-                sc.error(value.getPosition(), "", "No se puede imprimir un valor de tipo " + valueType);
+                context.error(value.getPosition(), "", "No se puede imprimir un valor de tipo " + valueType);
             }
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        List<MemoryAccess> accesses = new ArrayList<>();
         for (Expression value : values) {
-            MemoryAccess access = value.toIntermediateCode(u);
-            PrintHelper.print(u, access, value.getType());
+            accesses.add(value.toIntermediateCode(utils));
+        }
+        for (int i = 0; i < values.size(); i++) {
+            PrintHelper.print(utils, accesses.get(i), values.get(i).getType());
         }
         if (newLine) {
-            PrintHelper.printNewLine(u);
+            PrintHelper.printNewLine(utils);
         }
     }
 

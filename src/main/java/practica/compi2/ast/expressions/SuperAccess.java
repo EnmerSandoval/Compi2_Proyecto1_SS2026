@@ -16,23 +16,23 @@ public class SuperAccess extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
+    public Type validate(SemanticContext context) {
         type = Type.ERROR;
-        if (sc.getCurrentClass() == null) {
-            sc.error(position, "super", "'super' solo puede usarse dentro de una clase");
+        if (context.getCurrentClass() == null) {
+            context.error(position, "super", "'super' solo puede usarse dentro de una clase");
             return type;
         }
-        if (sc.getCurrentClass().getParent() == null) {
-            sc.error(position, "super", "La clase " + sc.getCurrentClass().getName() + " no hereda de ninguna clase");
+        if (context.getCurrentClass().getParent() == null) {
+            context.error(position, "super", "La clase " + context.getCurrentClass().getName() + " no hereda de ninguna clase");
             return type;
         }
-        type = new Type(TypeKind.CLASS, sc.getCurrentClass().getParent().getName(), 0);
+        type = new Type(TypeKind.CLASS, context.getCurrentClass().getParent().getName(), 0);
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        return MemoryHelper.thisPointer(u);
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        return MemoryHelper.thisPointer(utils);
     }
 
     @Override

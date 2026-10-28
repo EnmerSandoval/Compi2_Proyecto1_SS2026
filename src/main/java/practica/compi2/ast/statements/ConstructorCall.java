@@ -33,46 +33,46 @@ public class ConstructorCall extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, sc);
+    public void validate(SemanticContext context) {
+        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, context);
         String keyword = self ? "this" : "super";
         if (!firstInConstructor) {
-            sc.error(position, keyword, keyword + "(...) debe ser la primera instrucción de un constructor");
+            context.error(position, keyword, keyword + "(...) debe ser la primera instrucción de un constructor");
             return;
         }
-        ClassSymbol owner = self ? sc.getCurrentClass() : sc.getCurrentClass().getParent();
+        ClassSymbol owner = self ? context.getCurrentClass() : context.getCurrentClass().getParent();
         if (owner == null) {
-            sc.error(position, keyword, "La clase " + sc.getCurrentClass().getName() + " no hereda de ninguna clase");
+            context.error(position, keyword, "La clase " + context.getCurrentClass().getName() + " no hereda de ninguna clase");
             return;
         }
         if (owner.getConstructors().isEmpty() && arguments.isEmpty()) {
             constructor = owner.getImplicitConstructor();
             return;
         }
-        constructor = CallMatcher.findOverload(owner.getConstructors(), argumentTypes, sc.getRules());
+        constructor = CallMatcher.findOverload(owner.getConstructors(), argumentTypes, context.getRules());
         if (constructor == null) {
-            sc.error(position, keyword, "La clase " + owner.getName()
+            context.error(position, keyword, "La clase " + owner.getName()
                     + " no tiene un constructor que reciba esos argumentos");
             return;
         }
-        if (constructor == sc.getCurrentFunction()) {
-            sc.error(position, keyword, "El constructor " + constructor.getSignature() + " se llama a sí mismo");
+        if (constructor == context.getCurrentFunction()) {
+            context.error(position, keyword, "El constructor " + constructor.getSignature() + " se llama a sí mismo");
             return;
         }
-        sc.checkAccess(position, keyword, constructor.getAccess(), owner,
+        context.checkAccess(position, keyword, constructor.getAccess(), owner,
                 "El constructor " + constructor.getSignature());
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
         if (constructor == null) {
             return;
         }
         List<MemoryAccess> values = new ArrayList<>();
         for (Expression argument : arguments) {
-            values.add(argument.toIntermediateCode(u));
+            values.add(argument.toIntermediateCode(utils));
         }
-        CallHelper.call(u, constructor.getCName(), MemoryHelper.thisPointer(u), values);
+        CallHelper.call(utils, constructor.getCName(), MemoryHelper.thisPointer(utils), values);
     }
 
     @Override

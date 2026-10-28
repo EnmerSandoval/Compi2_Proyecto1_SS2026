@@ -18,16 +18,16 @@ public class ExpressionStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        expression.validate(sc);
+    public void validate(SemanticContext context) {
+        expression.validate(context);
         if (!expression.canBeStatement()) {
-            sc.error(position, "", "Esta expresión no hace nada por sí sola, no puede usarse como instrucción");
+            context.error(position, "", "Esta expresión no hace nada por sí sola, no puede usarse como instrucción");
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        expression.toIntermediateCode(u);
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        expression.toIntermediateCode(utils);
     }
 
     @Override

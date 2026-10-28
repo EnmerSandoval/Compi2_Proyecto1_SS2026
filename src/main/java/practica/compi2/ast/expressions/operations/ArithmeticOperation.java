@@ -24,22 +24,22 @@ public class ArithmeticOperation extends Operation {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess leftMemoryAccess = left.toIntermediateCode(u);
-        MemoryAccess rightMemoryAccess = right.toIntermediateCode(u);
-        return operate(u, leftMemoryAccess, rightMemoryAccess);
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess leftMemoryAccess = left.toIntermediateCode(utils);
+        MemoryAccess rightMemoryAccess = right.toIntermediateCode(utils);
+        return operate(utils, leftMemoryAccess, rightMemoryAccess);
     }
 
-    public MemoryAccess operate(IntermediateCodeUtils u, MemoryAccess leftMemoryAccess, MemoryAccess rightMemoryAccess) {
+    public MemoryAccess operate(IntermediateCodeUtils utils, MemoryAccess leftMemoryAccess, MemoryAccess rightMemoryAccess) {
         if (type.isString()) {
-            MemoryAccess leftText = StringHelper.toText(u, leftMemoryAccess, left.getType());
-            MemoryAccess rightText = StringHelper.toText(u, rightMemoryAccess, right.getType());
-            return StringHelper.concat(u, leftText, rightText);
+            MemoryAccess leftText = StringHelper.toText(utils, leftMemoryAccess, left.getType());
+            MemoryAccess rightText = StringHelper.toText(utils, rightMemoryAccess, right.getType());
+            return StringHelper.concat(utils, leftText, rightText);
         }
-        TemporalAccess temp = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
-        u.getCuartetas().add(new Operation3D(temp, leftMemoryAccess, rightMemoryAccess, operator));
+        TemporalAccess temp = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
+        utils.getCuartetas().add(new Operation3D(temp, leftMemoryAccess, rightMemoryAccess, operator));
         if (operator.equals("/") && type.is(TypeKind.INTEGER)) {
-            u.getCuartetas().add(new IntegerCast3D(temp, temp));
+            utils.getCuartetas().add(new IntegerCast3D(temp, temp));
         }
         return temp;
     }

@@ -10,10 +10,10 @@ public abstract class MemoryAccess implements CodeTransformable {
     }
 
     // cargar a registro
-    public abstract void loadRiscV(RiscVBuilder rb, String floatRegister);
+    public abstract void loadRiscV(RiscVBuilder builder, String floatRegister);
 
     // guardar desde registro
-    public void storeRiscV(RiscVBuilder rb, String floatRegister) {
+    public void storeRiscV(RiscVBuilder builder, String floatRegister) {
         throw new IllegalStateException("No se puede asignar un valor a " + this);
     }
 

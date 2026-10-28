@@ -11,19 +11,19 @@ public class RiscVGenerator {
     public static final int STACK_SIZE = 100000;
     public static final int HEAP_SIZE = 1000000;
 
-    public String generateCode(IntermediateCodeUtils u) {
-        RiscVBuilder rb = new RiscVBuilder();
+    public String generateCode(IntermediateCodeUtils utils) {
+        RiscVBuilder builder = new RiscVBuilder();
         // traducir cuartetas
-        for (Cuarteta cuarteta : u.getMainFirst()) {
-            cuarteta.toRiscV(rb);
+        for (Cuarteta cuarteta : utils.getMainFirst()) {
+            cuarteta.toRiscV(builder);
         }
         StringBuilder sb = new StringBuilder();
         // seccion de datos
         sb.append(".data\n");
         sb.append("stack: .space ").append(STACK_SIZE * 8).append("\n");
         sb.append("heap: .space ").append(HEAP_SIZE * 8).append("\n");
-        sb.append("temporales: .space ").append(Math.max(1, u.getCounter().getTemporalCount()) * 8).append("\n");
-        rb.appendData(sb);
+        sb.append("temporales: .space ").append(Math.max(1, utils.getCounter().getTemporalCount()) * 8).append("\n");
+        builder.appendData(sb);
         // inicializar registros base
         sb.append("""
 
@@ -37,7 +37,7 @@ public class RiscVGenerator {
                     li t0, 1
                     fcvt.d.l fs1, t0
                 """);
-        sb.append(rb.getText());
+        sb.append(builder.getText());
         return sb.toString();
     }
 

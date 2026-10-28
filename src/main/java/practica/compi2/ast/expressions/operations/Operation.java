@@ -23,12 +23,12 @@ public abstract class Operation extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        Type leftType = left.validate(sc);
-        Type rightType = right.validate(sc);
-        type = resultType(sc.getRules(), leftType, rightType);
+    public Type validate(SemanticContext context) {
+        Type leftType = left.validate(context);
+        Type rightType = right.validate(context);
+        type = resultType(context.getRules(), leftType, rightType);
         if (type.isError() && !leftType.isError() && !rightType.isError()) {
-            sc.error(position, operator, "No se puede aplicar '" + operator + "' entre "
+            context.error(position, operator, "No se puede aplicar '" + operator + "' entre "
                     + leftType + " y " + rightType);
         }
         return type;

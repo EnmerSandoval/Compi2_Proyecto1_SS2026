@@ -24,19 +24,19 @@ public class Literal extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
+    public Type validate(SemanticContext context) {
         if (primitive == PrimitiveType.INTEGER && value instanceof String) {
-            sc.error(position, value.toString(), "El número " + value + " está fuera del rango de un entero");
+            context.error(position, value.toString(), "El número " + value + " está fuera del rango de un entero");
         }
         type = Type.fromPrimitive(primitive);
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
         switch (primitive) {
             case STRING -> {
-                return StringHelper.allocateString(u, value.toString());
+                return StringHelper.allocateString(utils, value.toString());
             }
             case CHAR -> {
                 return new Literal3D((int) (Character) value);

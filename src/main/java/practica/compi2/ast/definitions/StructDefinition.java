@@ -33,58 +33,58 @@ public class StructDefinition extends Statement {
         fields.add(field);
     }
 
-    public void registerName(SemanticContext sc) {
+    public void registerName(SemanticContext context) {
         symbol = new StructSymbol(name, this);
-        if (!sc.getGlobals().addStruct(symbol)) {
-            sc.error(position, name, "Ya existe una estructura o clase llamada '" + name + "'");
+        if (!context.getGlobals().addStruct(symbol)) {
+            context.error(position, name, "Ya existe una estructura o clase llamada '" + name + "'");
         }
-        sc.getTypeTable().registerStruct(symbol);
-        reportStruct(sc);
+        context.getTypeTable().registerStruct(symbol);
+        reportStruct(context);
     }
 
-    public void registerFields(SemanticContext sc) {
+    public void registerFields(SemanticContext context) {
         for (Declaration field : fields) {
-            checkConstantSizes(field, sc);
-            Type fieldType = sc.resolveType(field.getType());
+            checkConstantSizes(field, context);
+            Type fieldType = context.resolveType(field.getType());
             Symbol fieldSymbol = new Symbol(field.getId(), fieldType, SymbolKind.FIELD, symbol.getFields().size());
             fieldSymbol.setScope(name);
             if (!symbol.addField(fieldSymbol)) {
-                sc.error(field.getPosition(), field.getId(), "El campo '" + field.getId()
+                context.error(field.getPosition(), field.getId(), "El campo '" + field.getId()
                         + "' está repetido en la estructura " + name);
             }
-            sc.report(fieldSymbol);
+            context.report(fieldSymbol);
         }
     }
 
     @Override
-    public void validate(SemanticContext sc) {
+    public void validate(SemanticContext context) {
         symbol = new StructSymbol(name, this);
-        sc.declareStruct(symbol, position);
-        sc.getTypeTable().registerStruct(symbol);
-        reportStruct(sc);
-        registerFields(sc);
+        context.declareStruct(symbol, position);
+        context.getTypeTable().registerStruct(symbol);
+        reportStruct(context);
+        registerFields(context);
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.registerStruct(symbol);
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.registerStruct(symbol);
     }
 
-    private void checkConstantSizes(Declaration field, SemanticContext sc) {
+    private void checkConstantSizes(Declaration field, SemanticContext context) {
         for (Expression size : field.getSizes()) {
             if (!size.isConstant()) {
-                sc.error(size.getPosition(), field.getId(), "El tamaño del arreglo '" + field.getId()
+                context.error(size.getPosition(), field.getId(), "El tamaño del arreglo '" + field.getId()
                         + "' debe ser una constante dentro de una estructura");
-            } else if (!size.validate(sc).is(TypeKind.INTEGER)) {
-                sc.error(size.getPosition(), field.getId(), "El tamaño del arreglo '" + field.getId()
+            } else if (!size.validate(context).is(TypeKind.INTEGER)) {
+                context.error(size.getPosition(), field.getId(), "El tamaño del arreglo '" + field.getId()
                         + "' debe ser entero");
             }
         }
     }
 
-    private void reportStruct(SemanticContext sc) {
+    private void reportStruct(SemanticContext context) {
         Type structType = new Type(TypeKind.STRUCT, name, 0);
-        sc.report(new Symbol(name, structType, SymbolKind.STRUCT, -1));
+        context.report(new Symbol(name, structType, SymbolKind.STRUCT, -1));
     }
 
     @Override

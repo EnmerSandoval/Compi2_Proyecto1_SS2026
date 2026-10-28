@@ -24,32 +24,32 @@ public class VariableAccess extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        symbol = sc.lookupVariable(id);
+    public Type validate(SemanticContext context) {
+        symbol = context.lookupVariable(id);
         if (symbol == null) {
-            sc.error(position, id, "La variable '" + id + "' no ha sido declarada");
+            context.error(position, id, "La variable '" + id + "' no ha sido declarada");
             type = Type.ERROR;
             return type;
         }
         if (symbol.getKind() == SymbolKind.ATTRIBUTE) {
-            sc.checkAccess(position, id, symbol.getAccess(), symbol.getOwnerClass(), "El atributo '" + id + "'");
+            context.checkAccess(position, id, symbol.getAccess(), symbol.getOwnerClass(), "El atributo '" + id + "'");
         }
         type = symbol.getType();
         return type;
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        return MemoryHelper.load(u, toAddress(u));
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        return MemoryHelper.load(utils, toAddress(utils));
     }
 
     @Override
-    public MemoryAccess toAddress(IntermediateCodeUtils u) {
+    public MemoryAccess toAddress(IntermediateCodeUtils utils) {
         if (symbol.getKind() == SymbolKind.ATTRIBUTE) {
-            MemoryAccess thisPointer = MemoryHelper.thisPointer(u);
-            return MemoryHelper.heapSlot(u, thisPointer, new Literal3D(symbol.getOffset()));
+            MemoryAccess thisPointer = MemoryHelper.thisPointer(utils);
+            return MemoryHelper.heapSlot(utils, thisPointer, new Literal3D(symbol.getOffset()));
         }
-        return MemoryHelper.stackSlot(u, symbol.getOffset());
+        return MemoryHelper.stackSlot(utils, symbol.getOffset());
     }
 
     @Override

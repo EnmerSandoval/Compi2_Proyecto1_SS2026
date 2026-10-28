@@ -19,29 +19,29 @@ public class ZetarianoProgram extends Program {
         this.classDefinition = classDefinition;
     }
 
-    public void registerTypes(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
-        classDefinition.registerName(sc, nameWithoutExtension());
+    public void registerTypes(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
+        classDefinition.registerName(context, nameWithoutExtension());
     }
 
-    public void linkParent(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
-        classDefinition.linkParent(sc);
+    public void linkParent(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
+        classDefinition.linkParent(context);
     }
 
-    public void registerMembers(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
-        classDefinition.registerMembers(sc);
+    public void registerMembers(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
+        classDefinition.registerMembers(context);
     }
 
-    public void validate(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
-        classDefinition.validate(sc);
+    public void validate(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new ZetarianoCompatibilityTable()));
+        classDefinition.validate(context);
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.useBooleanWords("true", "false");
-        classDefinition.toIntermediateCode(u);
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.useBooleanWords("true", "false");
+        classDefinition.toIntermediateCode(utils);
     }
 
     private String nameWithoutExtension() {

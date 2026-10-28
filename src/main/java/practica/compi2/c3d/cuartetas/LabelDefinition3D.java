@@ -15,8 +15,8 @@ public class LabelDefinition3D extends Cuarteta {
 
     // definir etiqueta
     @Override
-    public void toRiscV(RiscVBuilder rb) {
-        rb.label("et" + label);
+    public void toRiscV(RiscVBuilder builder) {
+        builder.label("et" + label);
     }
 
     @Override

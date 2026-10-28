@@ -30,10 +30,10 @@ public class IncDecOperation extends UnaryOperation {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        super.validate(sc);
+    public Type validate(SemanticContext context) {
+        super.validate(context);
         if (!operand.isAssignable()) {
-            sc.error(position, operator, "El operador '" + operator + "' solo se puede aplicar a variables");
+            context.error(position, operator, "El operador '" + operator + "' solo se puede aplicar a variables");
             type = Type.ERROR;
         }
         return type;
@@ -45,13 +45,13 @@ public class IncDecOperation extends UnaryOperation {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess location = operand.toAddress(u);
-        TemporalAccess oldValue = MemoryHelper.load(u, location);
-        TemporalAccess newValue = new TemporalAccess(u.getCounter().getAndIncrementTemporalCount());
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess location = operand.toAddress(utils);
+        TemporalAccess oldValue = MemoryHelper.load(utils, location);
+        TemporalAccess newValue = new TemporalAccess(utils.getCounter().getAndIncrementTemporalCount());
         String operation = isIncrement() ? "+" : "-";
-        u.getCuartetas().add(new Operation3D(newValue, oldValue, new Literal3D(1), operation));
-        u.getCuartetas().add(new Assignation3D(location, newValue));
+        utils.getCuartetas().add(new Operation3D(newValue, oldValue, new Literal3D(1), operation));
+        utils.getCuartetas().add(new Assignation3D(location, newValue));
         if (prefix) {
             return newValue;
         }

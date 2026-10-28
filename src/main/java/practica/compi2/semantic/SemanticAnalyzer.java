@@ -11,10 +11,10 @@ import practica.compi2.semantic.types.TypeTable;
 
 public class SemanticAnalyzer {
 
-    private final SemanticContext sc;
+    private final SemanticContext context;
 
-    public SemanticAnalyzer(ErrorManager em) {
-        this.sc = new SemanticContext(em);
+    public SemanticAnalyzer(ErrorManager errorManager) {
+        this.context = new SemanticContext(errorManager);
     }
 
     public void analyze(Ast ast) {
@@ -26,46 +26,46 @@ public class SemanticAnalyzer {
 
     private void registerTypes(Ast ast) {
         for (YProgram program : ast.getYPrograms()) {
-            program.registerTypes(sc);
+            program.registerTypes(context);
         }
         for (ZetarianoProgram program : ast.getClasses()) {
-            program.registerTypes(sc);
+            program.registerTypes(context);
         }
     }
 
     private void linkClasses(Ast ast) {
         for (ZetarianoProgram program : ast.getClasses()) {
-            program.linkParent(sc);
+            program.linkParent(context);
         }
         ast.getClasses().sort(Comparator.comparingInt(program -> program.getClassDefinition().depth()));
     }
 
     private void registerMembers(Ast ast) {
         for (YProgram program : ast.getYPrograms()) {
-            program.registerMembers(sc);
+            program.registerMembers(context);
         }
         for (ZetarianoProgram program : ast.getClasses()) {
-            program.registerMembers(sc);
+            program.registerMembers(context);
         }
     }
 
     private void validatePrograms(Ast ast) {
         for (YProgram program : ast.getYPrograms()) {
-            program.validate(sc);
+            program.validate(context);
         }
         for (ZetarianoProgram program : ast.getClasses()) {
-            program.validate(sc);
+            program.validate(context);
         }
         if (ast.getMain() != null) {
-            ast.getMain().validate(sc);
+            ast.getMain().validate(context);
         }
     }
 
     public TypeTable getTypeTable() {
-        return sc.getTypeTable();
+        return context.getTypeTable();
     }
 
     public List<Symbol> getSymbols() {
-        return sc.getSymbols();
+        return context.getSymbols();
     }
 }

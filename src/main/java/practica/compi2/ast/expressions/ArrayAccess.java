@@ -26,18 +26,18 @@ public class ArrayAccess extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        Type targetType = target.validate(sc);
-        Type indexType = index.validate(sc);
+    public Type validate(SemanticContext context) {
+        Type targetType = target.validate(context);
+        Type indexType = index.validate(context);
         type = Type.ERROR;
         if (!indexType.isError() && !indexType.is(TypeKind.INTEGER)) {
-            sc.error(index.getPosition(), "", "El índice de un arreglo debe ser entero y es " + indexType);
+            context.error(index.getPosition(), "", "El índice de un arreglo debe ser entero y es " + indexType);
         }
         if (targetType.isError()) {
             return type;
         }
         if (!targetType.isArray()) {
-            sc.error(position, "", "Un valor de tipo " + targetType + " no es un arreglo");
+            context.error(position, "", "Un valor de tipo " + targetType + " no es un arreglo");
             return type;
         }
         type = targetType.elementType();
@@ -45,12 +45,12 @@ public class ArrayAccess extends Expression {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
-        return MemoryHelper.load(u, toAddress(u));
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
+        return MemoryHelper.load(utils, toAddress(utils));
     }
 
     @Override
-    public MemoryAccess toAddress(IntermediateCodeUtils u) {
+    public MemoryAccess toAddress(IntermediateCodeUtils utils) {
         List<Expression> indexExpressions = new ArrayList<>();
         Expression array = this;
         while (array instanceof ArrayAccess) {
@@ -58,12 +58,12 @@ public class ArrayAccess extends Expression {
             indexExpressions.add(0, access.getIndex());
             array = access.getTarget();
         }
-        MemoryAccess ptr = array.toIntermediateCode(u);
+        MemoryAccess ptr = array.toIntermediateCode(utils);
         List<MemoryAccess> indexes = new ArrayList<>();
         for (Expression indexExpression : indexExpressions) {
-            indexes.add(indexExpression.toIntermediateCode(u));
+            indexes.add(indexExpression.toIntermediateCode(utils));
         }
-        return ArrayHelper.elementAddress(u, ptr, indexes, array.getType().getDimensions());
+        return ArrayHelper.elementAddress(utils, ptr, indexes, array.getType().getDimensions());
     }
 
     @Override

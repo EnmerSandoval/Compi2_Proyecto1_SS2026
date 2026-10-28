@@ -36,54 +36,54 @@ public class Assignation extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
+    public void validate(SemanticContext context) {
         if (compound != null) {
-            validateCompound(sc);
+            validateCompound(context);
             return;
         }
-        Type targetType = target.validate(sc);
-        checkAssignable(sc);
-        new AssignmentChecker(sc).check(value, targetType, new ArrayList<>());
+        Type targetType = target.validate(context);
+        checkAssignable(context);
+        new AssignmentChecker(context).check(value, targetType, new ArrayList<>());
     }
 
-    private void validateCompound(SemanticContext sc) {
-        Type operationType = compound.validate(sc);
-        checkAssignable(sc);
+    private void validateCompound(SemanticContext context) {
+        Type operationType = compound.validate(context);
+        checkAssignable(context);
         Type targetType = target.getType();
-        if (!operationType.isError() && !sc.getRules().canAssign(targetType, operationType)) {
-            sc.error(position, operator, "No se puede aplicar '" + operator + "' entre "
+        if (!operationType.isError() && !context.getRules().canAssign(targetType, operationType)) {
+            context.error(position, operator, "No se puede aplicar '" + operator + "' entre "
                     + targetType + " y " + value.getType());
         }
     }
 
-    private void checkAssignable(SemanticContext sc) {
+    private void checkAssignable(SemanticContext context) {
         if (!target.isAssignable()) {
-            sc.error(position, operator, "Solo se puede asignar a variables, campos o posiciones de un arreglo");
+            context.error(position, operator, "Solo se puede asignar a variables, campos o posiciones de un arreglo");
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess location = target.toAddress(u);
-        MemoryAccess newValue = createValue(u, location);
-        u.getCuartetas().add(new Assignation3D(location, newValue));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess location = target.toAddress(utils);
+        MemoryAccess newValue = createValue(utils, location);
+        utils.getCuartetas().add(new Assignation3D(location, newValue));
     }
 
-    private MemoryAccess createValue(IntermediateCodeUtils u, MemoryAccess location) {
+    private MemoryAccess createValue(IntermediateCodeUtils utils, MemoryAccess location) {
         if (value instanceof InitializerList) {
-            return InitializerHelper.build(u, (InitializerList) value, target.getType(), new ArrayList<>());
+            return InitializerHelper.build(utils, (InitializerList) value, target.getType(), new ArrayList<>());
         }
-        MemoryAccess access = value.toIntermediateCode(u);
+        MemoryAccess access = value.toIntermediateCode(utils);
         if (compound == null && target.getType().isStruct() && target.getType().getDimensions() == 0) {
-            MemoryAccess current = MemoryHelper.load(u, location);
-            CopyHelper.copyStruct(u, current, access, u.getStruct(target.getType().getName()));
+            MemoryAccess current = MemoryHelper.load(utils, location);
+            CopyHelper.copyStruct(utils, current, access, utils.getStruct(target.getType().getName()));
             return current;
         }
         if (compound == null) {
             return access;
         }
-        MemoryAccess current = MemoryHelper.load(u, location);
-        return compound.operate(u, current, access);
+        MemoryAccess current = MemoryHelper.load(utils, location);
+        return compound.operate(utils, current, access);
     }
 
     @Override

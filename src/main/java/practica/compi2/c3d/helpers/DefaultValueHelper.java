@@ -11,21 +11,21 @@ import practica.compi2.semantic.types.Type;
 
 public class DefaultValueHelper {
 
-    public static MemoryAccess create(IntermediateCodeUtils u, Type type, List<Expression> sizes) {
+    public static MemoryAccess create(IntermediateCodeUtils utils, Type type, List<Expression> sizes) {
         if (!sizes.isEmpty()) {
             List<MemoryAccess> dimensions = new ArrayList<>();
             for (Expression size : sizes) {
-                dimensions.add(size.toIntermediateCode(u));
+                dimensions.add(size.toIntermediateCode(utils));
             }
-            TemporalAccess ptr = ArrayHelper.allocate(u, dimensions);
+            TemporalAccess ptr = ArrayHelper.allocate(utils, dimensions);
             Type elementType = type.withDimensions(0);
             if (elementType.isStruct()) {
-                ArrayHelper.fillWithStructs(u, ptr, dimensions, u.getStruct(elementType.getName()));
+                ArrayHelper.fillWithStructs(utils, ptr, dimensions, utils.getStruct(elementType.getName()));
             }
             return ptr;
         }
         if (type.isStruct()) {
-            return StructHelper.allocate(u, u.getStruct(type.getName()));
+            return StructHelper.allocate(utils, utils.getStruct(type.getName()));
         }
         return new Literal3D(0);
     }

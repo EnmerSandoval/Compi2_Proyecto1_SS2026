@@ -23,26 +23,26 @@ public class DoWhileStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        sc.enterLoop();
-        body.validate(sc);
-        sc.exitLoop();
-        sc.checkCondition(condition, "hacer-mientras");
+    public void validate(SemanticContext context) {
+        context.enterLoop();
+        body.validate(context);
+        context.exitLoop();
+        context.checkCondition(condition, "hacer-mientras");
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        int bodyLabel = u.getCounter().getAndIncrementLabelCount();
-        int conditionLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        u.getCuartetas().add(new LabelDefinition3D(bodyLabel));
-        u.enterLoop(conditionLabel, endLabel);
-        body.toIntermediateCode(u);
-        u.exitLoop();
-        u.getCuartetas().add(new LabelDefinition3D(conditionLabel));
-        MemoryAccess conditionAccess = condition.toIntermediateCode(u);
-        ConditionHelper.jumpIfTrue(u, conditionAccess, bodyLabel, endLabel);
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        int bodyLabel = utils.getCounter().getAndIncrementLabelCount();
+        int conditionLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        utils.getCuartetas().add(new LabelDefinition3D(bodyLabel));
+        utils.enterLoop(conditionLabel, endLabel);
+        body.toIntermediateCode(utils);
+        utils.exitLoop();
+        utils.getCuartetas().add(new LabelDefinition3D(conditionLabel));
+        MemoryAccess conditionAccess = condition.toIntermediateCode(utils);
+        ConditionHelper.jumpIfTrue(utils, conditionAccess, bodyLabel, endLabel);
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 
     @Override

@@ -18,15 +18,15 @@ public class BreakStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        if (!sc.isInsideLoop() && !sc.isInsideSwitch()) {
-            sc.error(position, keyword, "'" + keyword + "' solo puede usarse dentro de un ciclo o de un elegir/switch");
+    public void validate(SemanticContext context) {
+        if (!context.isInsideLoop() && !context.isInsideSwitch()) {
+            context.error(position, keyword, "'" + keyword + "' solo puede usarse dentro de un ciclo o de un elegir/switch");
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.getCuartetas().add(new Goto3D(u.getBreakLabel()));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.getCuartetas().add(new Goto3D(utils.getBreakLabel()));
     }
 
     @Override

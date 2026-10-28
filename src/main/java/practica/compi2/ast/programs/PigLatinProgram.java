@@ -38,26 +38,26 @@ public class PigLatinProgram extends Program {
         globals.add(declaration);
     }
 
-    public void validate(SemanticContext sc) {
-        sc.useFile(fileName, new TypeRules(new PigLatinCompatibilityTable()));
+    public void validate(SemanticContext context) {
+        context.useFile(fileName, new TypeRules(new PigLatinCompatibilityTable()));
         Frame frame = new Frame("main", 0);
-        sc.enterMain(frame);
+        context.enterMain(frame);
         for (Declaration global : globals) {
-            global.validate(sc);
+            global.validate(context);
         }
-        main.validateStatements(sc);
+        main.validateStatements(context);
         frameSize = frame.getSize();
-        sc.exitFunction();
+        context.exitFunction();
     }
 
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        u.useBooleanWords("verum", "falsus");
-        u.startMain(frameSize);
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        utils.useBooleanWords("verum", "falsus");
+        utils.startMain(frameSize);
         for (Declaration global : globals) {
-            global.toIntermediateCode(u);
+            global.toIntermediateCode(utils);
         }
-        main.toIntermediateCode(u);
-        u.endFunction();
+        main.toIntermediateCode(utils);
+        utils.endFunction();
     }
 
     @Override

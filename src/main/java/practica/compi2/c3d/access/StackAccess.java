@@ -16,24 +16,24 @@ public class StackAccess extends MemoryAccess {
 
     // leer del stack
     @Override
-    public void loadRiscV(RiscVBuilder rb, String floatRegister) {
-        address(rb);
-        rb.instruction("fld " + floatRegister + ", 0(t0)");
+    public void loadRiscV(RiscVBuilder builder, String floatRegister) {
+        address(builder);
+        builder.instruction("fld " + floatRegister + ", 0(t0)");
     }
 
     // escribir en stack
     @Override
-    public void storeRiscV(RiscVBuilder rb, String floatRegister) {
-        address(rb);
-        rb.instruction("fsd " + floatRegister + ", 0(t0)");
+    public void storeRiscV(RiscVBuilder builder, String floatRegister) {
+        address(builder);
+        builder.instruction("fsd " + floatRegister + ", 0(t0)");
     }
 
     // direccion en stack
-    private void address(RiscVBuilder rb) {
-        internalAccess.loadRiscV(rb, "ft3");
-        rb.instruction("fcvt.l.d t0, ft3, rtz");
-        rb.instruction("slli t0, t0, 3");
-        rb.instruction("add t0, " + RiscVBuilder.STACK_BASE + ", t0");
+    private void address(RiscVBuilder builder) {
+        internalAccess.loadRiscV(builder, "ft3");
+        builder.instruction("fcvt.l.d t0, ft3, rtz");
+        builder.instruction("slli t0, t0, 3");
+        builder.instruction("add t0, " + RiscVBuilder.STACK_BASE + ", t0");
     }
 
     @Override

@@ -35,22 +35,22 @@ public class NewObject extends Expression {
     }
 
     @Override
-    public Type validate(SemanticContext sc) {
-        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, sc);
+    public Type validate(SemanticContext context) {
+        List<Type> argumentTypes = CallMatcher.validateArguments(arguments, context);
         type = Type.ERROR;
-        classSymbol = sc.getGlobals().getClass(className);
+        classSymbol = context.getGlobals().getClass(className);
         if (classSymbol == null) {
-            sc.error(position, className, "La clase '" + className + "' no existe o no fue importada");
+            context.error(position, className, "La clase '" + className + "' no existe o no fue importada");
             return type;
         }
-        constructor = CallMatcher.findOverload(classSymbol.getConstructors(), argumentTypes, sc.getRules());
+        constructor = CallMatcher.findOverload(classSymbol.getConstructors(), argumentTypes, context.getRules());
         boolean usesDefaultConstructor = classSymbol.getConstructors().isEmpty() && arguments.isEmpty();
         if (constructor == null && !usesDefaultConstructor) {
-            sc.error(position, className, "La clase " + className + " no tiene un constructor que reciba esos argumentos");
+            context.error(position, className, "La clase " + className + " no tiene un constructor que reciba esos argumentos");
             return type;
         }
         if (constructor != null) {
-            sc.checkAccess(position, className, constructor.getAccess(), classSymbol,
+            context.checkAccess(position, className, constructor.getAccess(), classSymbol,
                     "El constructor " + constructor.getSignature());
         }
         type = new Type(TypeKind.CLASS, className, 0);
@@ -58,20 +58,20 @@ public class NewObject extends Expression {
     }
 
     @Override
-    public MemoryAccess toIntermediateCode(IntermediateCodeUtils u) {
+    public MemoryAccess toIntermediateCode(IntermediateCodeUtils utils) {
         List<MemoryAccess> values = new ArrayList<>();
         for (Expression argument : arguments) {
-            values.add(argument.toIntermediateCode(u));
+            values.add(argument.toIntermediateCode(utils));
         }
-        TemporalAccess object = MemoryHelper.allocate(u, new Literal3D(classSymbol.getSize()));
-        u.getCuartetas().add(new Assignation3D(new HeapAccess(object), new Literal3D(classSymbol.getId())));
-        CallHelper.call(u, classSymbol.getInitName(), object, new ArrayList<>());
+        TemporalAccess object = MemoryHelper.allocate(utils, new Literal3D(classSymbol.getSize()));
+        utils.getCuartetas().add(new Assignation3D(new HeapAccess(object), new Literal3D(classSymbol.getId())));
+        CallHelper.call(utils, classSymbol.getInitName(), object, new ArrayList<>());
         FunctionSymbol called = constructor;
         if (called == null) {
             called = classSymbol.getImplicitConstructor();
         }
         if (called != null) {
-            CallHelper.call(u, called.getCName(), object, values);
+            CallHelper.call(utils, called.getCName(), object, values);
         }
         return object;
     }

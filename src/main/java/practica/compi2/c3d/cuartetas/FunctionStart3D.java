@@ -21,9 +21,9 @@ public class FunctionStart3D extends Cuarteta {
 
     // etiqueta de funcion
     @Override
-    public void toRiscV(RiscVBuilder rb) {
+    public void toRiscV(RiscVBuilder builder) {
         if (!main) {
-            rb.label(name);
+            builder.label(name);
         }
     }
 

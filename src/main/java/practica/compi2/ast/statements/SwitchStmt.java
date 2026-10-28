@@ -26,47 +26,47 @@ public class SwitchStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        Type switchType = expression.validate(sc);
+    public void validate(SemanticContext context) {
+        Type switchType = expression.validate(context);
         int defaultCases = 0;
-        sc.enterSwitch();
-        sc.enterScope();
+        context.enterSwitch();
+        context.enterScope();
         for (SwitchCase switchCase : cases) {
             if (switchCase.isDefault()) {
                 defaultCases++;
             }
-            switchCase.validate(sc, switchType);
+            switchCase.validate(context, switchType);
         }
-        sc.exitScope();
-        sc.exitSwitch();
+        context.exitScope();
+        context.exitSwitch();
         if (defaultCases > 1) {
-            sc.error(position, "", "Solo puede haber un caso por defecto");
+            context.error(position, "", "Solo puede haber un caso por defecto");
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        MemoryAccess value = expression.toIntermediateCode(u);
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        MemoryAccess value = expression.toIntermediateCode(utils);
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
         int defaultLabel = endLabel;
         List<Integer> caseLabels = new ArrayList<>();
         for (SwitchCase switchCase : cases) {
-            int caseLabel = u.getCounter().getAndIncrementLabelCount();
+            int caseLabel = utils.getCounter().getAndIncrementLabelCount();
             caseLabels.add(caseLabel);
             if (switchCase.isDefault()) {
                 defaultLabel = caseLabel;
             } else {
-                switchCase.jumpIfMatches(u, value, expression.getType(), caseLabel);
+                switchCase.jumpIfMatches(utils, value, expression.getType(), caseLabel);
             }
         }
-        u.getCuartetas().add(new Goto3D(defaultLabel));
-        u.enterSwitch(endLabel);
+        utils.getCuartetas().add(new Goto3D(defaultLabel));
+        utils.enterSwitch(endLabel);
         for (int i = 0; i < cases.size(); i++) {
-            u.getCuartetas().add(new LabelDefinition3D(caseLabels.get(i)));
-            cases.get(i).toIntermediateCode(u);
+            utils.getCuartetas().add(new LabelDefinition3D(caseLabels.get(i)));
+            cases.get(i).toIntermediateCode(utils);
         }
-        u.exitSwitch();
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+        utils.exitSwitch();
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 
     @Override

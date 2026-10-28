@@ -26,29 +26,29 @@ public class IfStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        sc.checkCondition(condition, "si");
-        body.validate(sc);
+    public void validate(SemanticContext context) {
+        context.checkCondition(condition, "si");
+        body.validate(context);
         if (elseBranch != null) {
-            elseBranch.validate(sc);
+            elseBranch.validate(context);
         }
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        int trueLabel = u.getCounter().getAndIncrementLabelCount();
-        int falseLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
-        MemoryAccess conditionAccess = condition.toIntermediateCode(u);
-        ConditionHelper.jumpIfTrue(u, conditionAccess, trueLabel, falseLabel);
-        u.getCuartetas().add(new LabelDefinition3D(trueLabel));
-        body.toIntermediateCode(u);
-        u.getCuartetas().add(new Goto3D(endLabel));
-        u.getCuartetas().add(new LabelDefinition3D(falseLabel));
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        int trueLabel = utils.getCounter().getAndIncrementLabelCount();
+        int falseLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
+        MemoryAccess conditionAccess = condition.toIntermediateCode(utils);
+        ConditionHelper.jumpIfTrue(utils, conditionAccess, trueLabel, falseLabel);
+        utils.getCuartetas().add(new LabelDefinition3D(trueLabel));
+        body.toIntermediateCode(utils);
+        utils.getCuartetas().add(new Goto3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(falseLabel));
         if (elseBranch != null) {
-            elseBranch.toIntermediateCode(u);
+            elseBranch.toIntermediateCode(utils);
         }
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 
     @Override

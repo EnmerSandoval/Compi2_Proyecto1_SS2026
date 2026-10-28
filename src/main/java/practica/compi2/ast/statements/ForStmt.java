@@ -28,47 +28,47 @@ public class ForStmt extends Statement {
     }
 
     @Override
-    public void validate(SemanticContext sc) {
-        sc.enterScope();
+    public void validate(SemanticContext context) {
+        context.enterScope();
         if (init != null) {
-            init.validate(sc);
+            init.validate(context);
         }
         if (condition != null) {
-            sc.checkCondition(condition, "para");
+            context.checkCondition(condition, "para");
         }
         if (update != null) {
-            update.validate(sc);
+            update.validate(context);
         }
-        sc.enterLoop();
-        body.validate(sc);
-        sc.exitLoop();
-        sc.exitScope();
+        context.enterLoop();
+        body.validate(context);
+        context.exitLoop();
+        context.exitScope();
     }
 
     @Override
-    public void toIntermediateCode(IntermediateCodeUtils u) {
-        int conditionLabel = u.getCounter().getAndIncrementLabelCount();
-        int bodyLabel = u.getCounter().getAndIncrementLabelCount();
-        int updateLabel = u.getCounter().getAndIncrementLabelCount();
-        int endLabel = u.getCounter().getAndIncrementLabelCount();
+    public void toIntermediateCode(IntermediateCodeUtils utils) {
+        int conditionLabel = utils.getCounter().getAndIncrementLabelCount();
+        int bodyLabel = utils.getCounter().getAndIncrementLabelCount();
+        int updateLabel = utils.getCounter().getAndIncrementLabelCount();
+        int endLabel = utils.getCounter().getAndIncrementLabelCount();
         if (init != null) {
-            init.toIntermediateCode(u);
+            init.toIntermediateCode(utils);
         }
-        u.getCuartetas().add(new LabelDefinition3D(conditionLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(conditionLabel));
         if (condition != null) {
-            MemoryAccess conditionAccess = condition.toIntermediateCode(u);
-            ConditionHelper.jumpIfTrue(u, conditionAccess, bodyLabel, endLabel);
+            MemoryAccess conditionAccess = condition.toIntermediateCode(utils);
+            ConditionHelper.jumpIfTrue(utils, conditionAccess, bodyLabel, endLabel);
         }
-        u.getCuartetas().add(new LabelDefinition3D(bodyLabel));
-        u.enterLoop(updateLabel, endLabel);
-        body.toIntermediateCode(u);
-        u.exitLoop();
-        u.getCuartetas().add(new LabelDefinition3D(updateLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(bodyLabel));
+        utils.enterLoop(updateLabel, endLabel);
+        body.toIntermediateCode(utils);
+        utils.exitLoop();
+        utils.getCuartetas().add(new LabelDefinition3D(updateLabel));
         if (update != null) {
-            update.toIntermediateCode(u);
+            update.toIntermediateCode(utils);
         }
-        u.getCuartetas().add(new Goto3D(conditionLabel));
-        u.getCuartetas().add(new LabelDefinition3D(endLabel));
+        utils.getCuartetas().add(new Goto3D(conditionLabel));
+        utils.getCuartetas().add(new LabelDefinition3D(endLabel));
     }
 
     @Override

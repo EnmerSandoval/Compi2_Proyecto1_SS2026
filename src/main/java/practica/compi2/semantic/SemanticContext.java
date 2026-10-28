@@ -24,7 +24,7 @@ import practica.compi2.semantic.types.TypeTable;
 @Getter
 public class SemanticContext {
 
-    private final ErrorManager em;
+    private final ErrorManager errorManager;
     private final GlobalTable globals;
     private final List<Symbol> symbols;
     private final TypeResolver typeResolver;
@@ -41,8 +41,8 @@ public class SemanticContext {
     @Setter
     private boolean returnFound;
 
-    public SemanticContext(ErrorManager em) {
-        this.em = em;
+    public SemanticContext(ErrorManager errorManager) {
+        this.errorManager = errorManager;
         this.globals = new GlobalTable();
         this.symbols = new ArrayList<>();
         this.typeResolver = new TypeResolver(this);
@@ -59,7 +59,7 @@ public class SemanticContext {
         if (lexeme.isEmpty() && position != null) {
             lexeme = position.getLexeme();
         }
-        em.addSemanticError(fileName, position, lexeme, description);
+        errorManager.addSemanticError(fileName, position, lexeme, description);
     }
 
     public boolean canAccess(AccessModifier access, ClassSymbol owner) {

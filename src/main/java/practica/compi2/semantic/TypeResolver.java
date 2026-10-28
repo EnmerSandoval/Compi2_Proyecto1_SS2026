@@ -9,10 +9,10 @@ import practica.compi2.semantic.types.TypeKind;
 
 public class TypeResolver {
 
-    private final SemanticContext sc;
+    private final SemanticContext context;
 
-    public TypeResolver(SemanticContext sc) {
-        this.sc = sc;
+    public TypeResolver(SemanticContext context) {
+        this.context = context;
     }
 
     public Type resolve(TypeReference reference) {
@@ -21,25 +21,25 @@ public class TypeResolver {
             return Type.fromPrimitive(reference.getPrimitive()).withDimensions(dimensions);
         }
         String name = reference.getName();
-        if (sc.lookupStruct(name) != null) {
+        if (context.lookupStruct(name) != null) {
             return new Type(TypeKind.STRUCT, name, dimensions);
         }
-        if (sc.getGlobals().getClass(name) != null) {
+        if (context.getGlobals().getClass(name) != null) {
             return new Type(TypeKind.CLASS, name, dimensions);
         }
-        sc.error(reference.getPosition(), name, "El tipo '" + name + "' no existe o no fue importado");
+        context.error(reference.getPosition(), name, "El tipo '" + name + "' no existe o no fue importado");
         return Type.ERROR;
     }
 
     public Symbol findMember(Type owner, String member) {
         if (owner.isStruct()) {
-            StructSymbol struct = sc.lookupStruct(owner.getName());
+            StructSymbol struct = context.lookupStruct(owner.getName());
             if (struct != null) {
                 return struct.getField(member);
             }
         }
         if (owner.isClass()) {
-            ClassSymbol classSymbol = sc.getGlobals().getClass(owner.getName());
+            ClassSymbol classSymbol = context.getGlobals().getClass(owner.getName());
             if (classSymbol != null) {
                 return classSymbol.getAttribute(member);
             }
