@@ -49,7 +49,6 @@ public class IDERecaf extends javax.swing.JFrame {
         jMenu3.add(downloadRiscVButton);
     }
 
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
