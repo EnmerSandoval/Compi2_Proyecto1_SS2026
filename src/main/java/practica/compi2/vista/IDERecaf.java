@@ -288,6 +288,7 @@ public class IDERecaf extends javax.swing.JFrame {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    javax.swing.UIManager.put("Table.alternateRowColor", java.awt.Color.WHITE);
                     break;
                 }
             }

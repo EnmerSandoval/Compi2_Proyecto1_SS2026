@@ -1,5 +1,7 @@
 package practica.compi2.vista.reports;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
 import javax.swing.JScrollPane;
@@ -21,6 +23,9 @@ public class TableFactory {
         }
         JTable table = new JTable(model);
         table.setFillsViewportHeight(true);
+        table.setShowGrid(true);
+        table.setGridColor(Color.GRAY);
+        table.setIntercellSpacing(new Dimension(1, 1));
         table.getTableHeader().setReorderingAllowed(false);
         return table;
     }

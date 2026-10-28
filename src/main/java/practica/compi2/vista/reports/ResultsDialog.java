@@ -9,18 +9,24 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import practica.compi2.c3d.cuartetas.Cuarteta;
 import practica.compi2.compiler.CompilationResult;
+import practica.compi2.console.CompatibilityPrinter;
+import practica.compi2.console.TypeTablePrinter;
 import practica.compi2.semantic.symbols.Symbol;
+import practica.compi2.semantic.types.TypeEntry;
+import practica.compi2.semantic.types.TypeTable;
 
 public class ResultsDialog extends JDialog {
 
     private static final String[] SYMBOL_COLUMNS = {"Nombre", "Tipo", "Categoría", "Ámbito", "Posición", "Archivo"};
     private static final String[] CUARTETA_COLUMNS = {"#", "Operador", "Argumento 1", "Argumento 2", "Resultado"};
+    private static final String[] TYPE_COLUMNS = {"Tipo", "Categoría", "Tamaño", "Cómo se guarda", "Miembros (posición)"};
 
     public ResultsDialog(JFrame owner, CompilationResult compilation) {
         super(owner, "Reportes de compilación", false);
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Tabla de símbolos", symbolTable(compilation.getSymbols()));
-        tabs.addTab("Tabla de tipos", new TypeTablesPanel(compilation.getTypeTable()));
+        tabs.addTab("Tabla de tipos", typeTable(compilation.getTypeTable()));
+        tabs.addTab("Compatibilidad", compatibilityTable());
         tabs.addTab("Cuartetas", cuartetaTable(compilation.getCuartetas()));
         tabs.addTab("Código de tres direcciones", TableFactory.createTextPanel(compilation.getCode()));
         tabs.addTab("RISC-V", TableFactory.createTextPanel(compilation.getRiscVCode()));
@@ -47,6 +53,29 @@ public class ResultsDialog extends JDialog {
         }
         JTable table = TableFactory.createTable(SYMBOL_COLUMNS, rows);
         TableFactory.setWidths(table, 240, 110, 90, 160, 60, 180);
+        return new JScrollPane(table);
+    }
+
+    private JScrollPane typeTable(TypeTable typeTable) {
+        TypeTablePrinter printer = new TypeTablePrinter();
+        List<String[]> rows = new ArrayList<>();
+        for (TypeEntry entry : typeTable.getEntries()) {
+            rows.add(new String[]{
+                entry.getName(),
+                printer.categoryOf(entry),
+                String.valueOf(entry.getSize()),
+                printer.storageOf(entry),
+                printer.membersOf(entry)
+            });
+        }
+        JTable table = TableFactory.createTable(TYPE_COLUMNS, rows);
+        TableFactory.setWidths(table, 90, 170, 70, 480, 190);
+        return new JScrollPane(table);
+    }
+
+    private JScrollPane compatibilityTable() {
+        JTable table = TableFactory.createTable(CompatibilityPrinter.COLUMNS, new CompatibilityPrinter().rows());
+        TableFactory.setWidths(table, 90, 130, 130, 110, 160);
         return new JScrollPane(table);
     }
 
